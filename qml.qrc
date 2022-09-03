@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>singletons/Constants.qml</file>
+    </qresource>
+</RCC>
