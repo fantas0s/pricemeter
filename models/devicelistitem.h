@@ -4,6 +4,8 @@
 #include <QString>
 #include <QList>
 
+class QAbstractItemModel;
+
 class DeviceListItem
 {
 public:
@@ -13,7 +15,7 @@ public:
     void setTitle(const QString& newTitle);
     QString imageFile() const;
     void setImageFile(const QString& newName);
-    QList<OperationListItem> operations() const;
+    QAbstractItemModel* operationsModel() const;
     void addOperations(const QList<OperationListItem>& newOperations);
 private:
      QList<OperationListItem> m_operations;

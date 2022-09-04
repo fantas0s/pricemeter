@@ -2,5 +2,8 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>singletons/Constants.qml</file>
+        <file>Header.qml</file>
+        <file>DevicesView.qml</file>
+        <file>DeviceListDelegate.qml</file>
     </qresource>
 </RCC>

@@ -26,6 +26,17 @@
     </operation>
   </device>
   <device>
+    <title>Tiskikone</title>
+    <image>tiskikone.png</image>
+    <operation>
+      <title>1h pika 60</title>
+      <consumption>
+        <minutes>65</minutes>
+        <kWh>1,4</kWh>
+      </consumption>
+    </operation>
+  </device>
+  <device>
     <title>Sauna</title>
     <image>kiuas.png</image>
     <operation>

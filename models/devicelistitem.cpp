@@ -28,9 +28,9 @@ void DeviceListItem::setImageFile(const QString &newName)
     m_imageFile = newName;
 }
 
-QList<OperationListItem> DeviceListItem::operations() const
+QAbstractItemModel* DeviceListItem::operationsModel() const
 {
-    return m_operations;
+    return nullptr;
 }
 
 void DeviceListItem::addOperations(const QList<OperationListItem> &newOperations)

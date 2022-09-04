@@ -88,7 +88,7 @@ void XmlFileReader::parseDevice(QXmlStreamReader &reader)
     if (newItem.isValid()) {
         m_items.append(newItem);
     } else {
-        qWarning() << "Found invalid Device of title" << newItem.title() << "and Operation count of" << newItem.operations().size();
+        qWarning() << "Found invalid Device of title" << newItem.title();
     }
 }
 

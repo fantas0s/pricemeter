@@ -13,5 +13,10 @@ public:
     Q_INVOKABLE QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int,QByteArray> roleNames() const override;
 private:
+    enum class Role {
+        Title = Qt::ItemDataRole::UserRole,
+        ImageFile,
+        OperationsModel
+    };
     QList<DeviceListItem> m_items;
 };
