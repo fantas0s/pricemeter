@@ -7,9 +7,13 @@ QtObject {
     readonly property int screenHeight: 480
     readonly property int headerHeight: screenHeight > screenWidth ? screenWidth / 10 : screenHeight / 10
     readonly property int deviceDelegateHeight: screenHeight - (2 * headerHeight)
-    readonly property int deviceDelegateWidth: screenWidth - (2* headerHeight)
+    readonly property int deviceDelegateWidth: screenWidth - (3* headerHeight)
 
     /* Colors */
     readonly property color backgroundColor: "#000000"
     readonly property color labelTextColor: "#FFFFFF"
+
+    /* Fonts */
+    readonly property int deviceTitleFontMaxSize: 32
+    readonly property int operationTitleFontMaxSize: 32
 }

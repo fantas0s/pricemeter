@@ -24,7 +24,7 @@ QVariant DeviceListModel::data(const QModelIndex &index, int role) const
         case Role::ImageFile:
             return item.imageFile();
         case Role::OperationsModel:
-            return QVariant::fromValue<QAbstractItemModel*>(item.operationsModel());
+            return QVariant::fromValue<QAbstractItemModel*>(const_cast<DeviceListItem&>(item).operationsModel());
         default:
             break;
         }

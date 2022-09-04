@@ -1,7 +1,13 @@
 #include "devicelistitem.h"
+#include "operationsmodel.h"
 
 DeviceListItem::DeviceListItem()
 {}
+
+DeviceListItem::~DeviceListItem()
+{
+    delete m_model;
+}
 
 bool DeviceListItem::isValid() const
 {
@@ -28,9 +34,12 @@ void DeviceListItem::setImageFile(const QString &newName)
     m_imageFile = newName;
 }
 
-QAbstractItemModel* DeviceListItem::operationsModel() const
+QAbstractItemModel* DeviceListItem::operationsModel()
 {
-    return nullptr;
+    if (!m_model) {
+        m_model = new OperationsModel(m_operations);
+    }
+    return m_model;
 }
 
 void DeviceListItem::addOperations(const QList<OperationListItem> &newOperations)

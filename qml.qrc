@@ -5,5 +5,7 @@
         <file>Header.qml</file>
         <file>DevicesView.qml</file>
         <file>DeviceListDelegate.qml</file>
+        <file>OperationsListDelegate.qml</file>
+        <file>OperationRow.qml</file>
     </qresource>
 </RCC>

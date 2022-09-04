@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/astianpesukone.jpg</file>
+        <file>images/hehkulamppu.jpg</file>
+        <file>images/kiuas.png</file>
+        <file>images/vedenkeitin.jpg</file>
+    </qresource>
+</RCC>

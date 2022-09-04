@@ -10,10 +10,12 @@ SOURCES += \
         models/devicelistitem.cpp \
         models/devicelistmodel.cpp \
         models/operationlistitem.cpp \
+        models/operationsmodel.cpp \
         utils/xmlfilereader.cpp
 
 RESOURCES += qml.qrc \
-    appdata.qrc
+    appdata.qrc \
+    images.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -31,4 +33,5 @@ HEADERS += \
     models/devicelistitem.h \
     models/devicelistmodel.h \
     models/operationlistitem.h \
+    models/operationsmodel.h \
     utils/xmlfilereader.h

@@ -76,7 +76,11 @@ void XmlFileReader::parseDevice(QXmlStreamReader &reader)
                 if (reader.name().compare(s_titleName, Qt::CaseSensitivity::CaseInsensitive) == 0) {
                     newItem.setTitle(reader.readElementText(QXmlStreamReader::ReadElementTextBehaviour::SkipChildElements).trimmed());
                 } else if (reader.name().compare(s_imageName, Qt::CaseSensitivity::CaseInsensitive) == 0) {
-                    newItem.setImageFile(reader.readElementText(QXmlStreamReader::ReadElementTextBehaviour::SkipChildElements).trimmed());
+                    const QString textRead = reader.readElementText(QXmlStreamReader::ReadElementTextBehaviour::SkipChildElements).trimmed();
+                    if (!textRead.isEmpty())
+                    {
+                        newItem.setImageFile(QString("qrc:/images/")+textRead);
+                    }
                 }
             }
         } else {

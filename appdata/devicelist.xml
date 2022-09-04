@@ -2,7 +2,7 @@
 <devicelist>
   <device>
     <title>Vedenkeitin</title>
-    <image>vedenkeitin.png</image>
+    <image>vedenkeitin.jpg</image>
     <operation>
       <title>0,5 litraa</title>
       <consumption>
@@ -27,7 +27,7 @@
   </device>
   <device>
     <title>Tiskikone</title>
-    <image>tiskikone.png</image>
+    <image>astianpesukone.jpg</image>
     <operation>
       <title>1h pika 60</title>
       <consumption>
@@ -73,7 +73,7 @@
   </device>
   <device>
     <title>Teknisen tilan ulko-oven valo</title>
-    <image>hehkulamppu.png</image>
+    <image>hehkulamppu.jpg</image>
     <operation>
       <consumption>
         <kW>0.06</kW>
