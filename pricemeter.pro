@@ -9,7 +9,8 @@ SOURCES += \
         models/consumption.cpp \
         models/devicelistitem.cpp \
         models/devicelistmodel.cpp \
-        models/operationlistitem.cpp
+        models/operationlistitem.cpp \
+        utils/xmlfilereader.cpp
 
 RESOURCES += qml.qrc \
     appdata.qrc
@@ -29,4 +30,5 @@ HEADERS += \
     models/consumption.h \
     models/devicelistitem.h \
     models/devicelistmodel.h \
-    models/operationlistitem.h
+    models/operationlistitem.h \
+    utils/xmlfilereader.h

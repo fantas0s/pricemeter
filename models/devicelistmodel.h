@@ -3,7 +3,6 @@
 
 #include <QAbstractListModel>
 
-class QXmlStreamReader;
 
 class DeviceListModel : public QAbstractListModel
 {
@@ -14,11 +13,5 @@ public:
     Q_INVOKABLE QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int,QByteArray> roleNames() const override;
 private:
-    bool parseDeviceList(QXmlStreamReader& reader);
-    void parseDevice(QXmlStreamReader& reader);
-    OperationListItem parseOperation(QXmlStreamReader& reader);
-    Consumption parseConsumption(QXmlStreamReader& reader);
-    int toInt(const QString& text) const;
-    qreal toReal(const QString& text) const;
     QList<DeviceListItem> m_items;
 };
