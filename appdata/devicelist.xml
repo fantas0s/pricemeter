@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<devicelist>
+  <device>
+    <title>Vedenkeitin</title>
+    <image>vedenkeitin.png</image>
+    <operation>
+      <title>0,5 litraa</title>
+      <consumption>
+        <minutes>5</minutes>
+        <kWh>0,133</kWh>
+      </consumption>
+    </operation>
+    <operation>
+      <title>1 litra</title>
+      <consumption>
+        <seconds>600</seconds>
+        <kW>1,6</kW>
+      </consumption>
+    </operation>
+    <operation>
+      <title>1,8 litraa</title>
+      <consumption>
+        <minutes>18</minutes>
+        <kW>1,6</kW>
+      </consumption>
+    </operation>
+  </device>
+  <device>
+    <title>Sauna</title>
+    <image>kiuas.png</image>
+    <operation>
+      <title>1 tunti</title>
+      <consumption>
+        <minutes>40</minutes>
+        <kW>8</kW>
+      </consumption>
+      <consumption>
+        <minutes>20</minutes>
+        <kW>2</kW>
+      </consumption>
+    </operation>
+    <operation>
+      <title>2 tuntia</title>
+      <consumption>
+        <minutes>40</minutes>
+        <kW>8</kW>
+      </consumption>
+      <consumption>
+        <hours>1,33</hours>
+        <kW>2</kW>
+      </consumption>
+    </operation>
+  </device>
+  <device>
+    <title>Jouluvalo</title>
+    <image>koristevalo.png</image>
+    <operation>
+      <consumption>
+        <kW>0.006</kW>
+      </consumption>
+    </operation>
+  </device>
+  <device>
+    <title>Teknisen tilan ulko-oven valo</title>
+    <image>hehkulamppu.png</image>
+    <operation>
+      <consumption>
+        <kW>0.06</kW>
+      </consumption>
+    </operation>
+  </device>
+</devicelist>

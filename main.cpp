@@ -1,6 +1,7 @@
+#include "models/devicelistmodel.h"
+
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-
 
 int main(int argc, char *argv[])
 {
@@ -15,6 +16,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
+    qmlRegisterType<DeviceListModel>("listmodels", 1, 0, "DeviceListModel");
     qmlRegisterSingletonType(QUrl("qrc:/singletons/Constants.qml"), "config", 1, 0, "Constants");
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
