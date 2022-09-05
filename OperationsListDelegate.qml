@@ -9,6 +9,7 @@ Item {
     property var valueColors: model.valueColors
     Column {
         anchors.fill: parent
+        anchors.margins: Constants.deviceDelegateBorderMargin
         spacing: 6
         Text {
             color: Constants.labelTextColor
@@ -17,6 +18,7 @@ Item {
             width: parent.width
             font.pixelSize: Constants.operationTitleFontMaxSize
             fontSizeMode: Text.HorizontalFit
+            horizontalAlignment: Qt.AlignHCenter
         }
         Repeater {
             model: 4

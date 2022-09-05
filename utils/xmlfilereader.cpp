@@ -139,6 +139,20 @@ Consumption XmlFileReader::parseConsumption(QXmlStreamReader &reader)
     }
     newItem.setKW(kW);
     newItem.setKWh(kWh);
+    if (seconds > 59) {
+        minutes += (seconds / 60);
+        seconds = seconds % 60;
+    }
+    if (minutes > 59) {
+        hours += (minutes / 60);
+        minutes = minutes % 60;
+    }
+    if (hours > 23) {
+        /* 24:00:00 and up are all just "no time" */
+        hours = 0;
+        minutes = 0;
+        seconds = 0;
+    }
     newItem.setTime(QTime(hours, minutes, seconds));
     return newItem;
 }

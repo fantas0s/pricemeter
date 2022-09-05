@@ -6,25 +6,43 @@ Item {
     property alias labelText: _label.text
     property alias valueText: _value.text
     property alias valueTextColor: _value.color
-    Text {
-        id: _label
+    Item {
         height: parent.height
-        width: parent.width / 2
+        width: 2 * parent.width / 3 - 2 * Constants.operationDelegateTextBoxMargin
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        color: Constants.labelTextColor
-        font.pixelSize: parent.height - 2
-        fontSizeMode: Text.HorizontalFit
+        anchors.margins: Constants.operationDelegateTextBoxMargin
+        Text {
+            id: _label
+            anchors.fill: parent
+            anchors.margins: Constants.operationDelegateTextBoxMargin
+            color: Constants.labelTextColor
+            font.pixelSize: parent.height - 2 * Constants.operationDelegateTextBoxMargin
+            fontSizeMode: Text.HorizontalFit
+            horizontalAlignment: Qt.AlignRight
+            verticalAlignment: Qt.AlignBottom
+        }
     }
-    Text {
-        id: _value
+    Rectangle {
+        color: Constants.backgroundColor
+        border.color: Constants.consumptionBoxBorderColor
+        border.width: 1
+        radius: 5
         height: parent.height
-        width: parent.width / 2
+        width: parent.width / 3 - 2 * Constants.operationDelegateTextBoxMargin
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        font.pixelSize: parent.height - 2
-        fontSizeMode: Text.HorizontalFit
+        anchors.margins: Constants.operationDelegateTextBoxMargin
+        Text {
+            id: _value
+            anchors.fill: parent
+            anchors.margins: Constants.operationDelegateTextBoxMargin
+            font.pixelSize: parent.height - 2 * Constants.operationDelegateTextBoxMargin
+            fontSizeMode: Text.HorizontalFit
+            horizontalAlignment: Qt.AlignLeft
+            verticalAlignment: Qt.AlignBottom
+        }
     }
 }
