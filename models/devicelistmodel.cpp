@@ -40,3 +40,21 @@ QHash<int, QByteArray> DeviceListModel::roleNames() const
     returnValue.insert(static_cast<int>(Role::OperationsModel), "operationsModel");
     return returnValue;
 }
+
+void DeviceListModel::setClock(QObject *clockPtr)
+{
+    if (m_clock) {
+        disconnect(m_clock, &Clock::minuteChanged, this, &DeviceListModel::refreshItems);
+    }
+    m_clock = qobject_cast<Clock*>(clockPtr);
+    connect(m_clock, &Clock::minuteChanged, this, &DeviceListModel::refreshItems);
+    refreshItems();
+    emit clockChanged();
+}
+
+void DeviceListModel::refreshItems()
+{
+    for (DeviceListItem& item : m_items) {
+        item.recalculateValues(m_clock);
+    }
+}

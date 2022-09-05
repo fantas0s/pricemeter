@@ -60,3 +60,13 @@ QHash<int, QByteArray> OperationsModel::roleNames() const
     returnValue.insert(static_cast<int>(Role::ValueColors), "valueColors");
     return returnValue;
 }
+
+void OperationsModel::recalculateValues(const Clock *clock)
+{
+    for (OperationListItem& item : m_items) {
+        item.recalculateValues(clock);
+    }
+    if (rowCount()) {
+        emit dataChanged(index(0), index(rowCount() -1));
+    }
+}

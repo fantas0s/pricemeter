@@ -14,12 +14,14 @@ QtObject {
 
     /* Colors */
     readonly property color backgroundColor: "#000000"
+    readonly property color headerTextColor: "#FFFFFF"
     readonly property color labelTextColor: "#FFFFFF"
     readonly property color deviceDelegateBorderColor: "#EEEEEE"
     readonly property color deviceDelegateBorderGlowColor: "#88FFBB"
     readonly property color consumptionBoxBorderColor: "#DDDDDD"
 
     /* Fonts */
+    readonly property int headerFontSize: headerHeight - 8
     readonly property int deviceTitleFontMaxSize: 32
     readonly property int operationTitleFontMaxSize: 40
 }

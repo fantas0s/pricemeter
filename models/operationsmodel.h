@@ -3,6 +3,8 @@
 #include <QAbstractListModel>
 #include "operationlistitem.h"
 
+class Clock;
+
 class OperationsModel : public QAbstractListModel
 {
 public:
@@ -10,6 +12,7 @@ public:
     Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     Q_INVOKABLE QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int,QByteArray> roleNames() const override;
+    void recalculateValues(const Clock* clock);
 private:
     enum class Role {
         Title = Qt::ItemDataRole::UserRole,
