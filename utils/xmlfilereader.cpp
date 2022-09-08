@@ -119,26 +119,32 @@ OperationListItem XmlFileReader::parseOperation(QXmlStreamReader &reader)
 Consumption XmlFileReader::parseConsumption(QXmlStreamReader &reader)
 {
     Consumption newItem;
-    int minutes = 0;
-    int hours = 0;
+    qreal minutesReal = 0;
+    qreal hoursReal = 0;
     int seconds = 0;
     qreal kW = 0.0;
     qreal kWh = 0.0;
     while (!reader.atEnd() && reader.readNextStartElement()) {
         if (reader.name().compare(s_secondsName, Qt::CaseSensitivity::CaseInsensitive) == 0) {
-            seconds = toInt(reader.readElementText(QXmlStreamReader::ReadElementTextBehaviour::SkipChildElements));
+            seconds += toInt(reader.readElementText(QXmlStreamReader::ReadElementTextBehaviour::SkipChildElements));
         } else if (reader.name().compare(s_minutesName, Qt::CaseSensitivity::CaseInsensitive) == 0) {
-            minutes = toInt(reader.readElementText(QXmlStreamReader::ReadElementTextBehaviour::SkipChildElements));
+            minutesReal += toReal(reader.readElementText(QXmlStreamReader::ReadElementTextBehaviour::SkipChildElements));
         } else if (reader.name().compare(s_hoursName, Qt::CaseSensitivity::CaseInsensitive) == 0) {
-            hours = toInt(reader.readElementText(QXmlStreamReader::ReadElementTextBehaviour::SkipChildElements));
+            hoursReal += toReal(reader.readElementText(QXmlStreamReader::ReadElementTextBehaviour::SkipChildElements));
         } else if (reader.name().compare(s_kWName, Qt::CaseSensitivity::CaseInsensitive) == 0) {
-            kW = toReal(reader.readElementText(QXmlStreamReader::ReadElementTextBehaviour::SkipChildElements));
+            kW += toReal(reader.readElementText(QXmlStreamReader::ReadElementTextBehaviour::SkipChildElements));
         } else if (reader.name().compare(s_kWhName, Qt::CaseSensitivity::CaseInsensitive) == 0) {
-            kWh = toReal(reader.readElementText(QXmlStreamReader::ReadElementTextBehaviour::SkipChildElements));
+            kWh += toReal(reader.readElementText(QXmlStreamReader::ReadElementTextBehaviour::SkipChildElements));
         }
     }
     newItem.setKW(kW);
     newItem.setKWh(kWh);
+    /* handle decimal times. */
+    int minutes = minutesReal;
+    seconds += (minutesReal * 60.0) - (minutes * 60);
+    int hours = hoursReal;
+    seconds += (hoursReal * 3600.0) - (hoursReal * 3600);
+    /* Overflow to proper units. */
     if (seconds > 59) {
         minutes += (seconds / 60);
         seconds = seconds % 60;

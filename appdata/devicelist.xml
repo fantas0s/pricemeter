@@ -6,22 +6,22 @@
     <operation>
       <title>0,5 litraa</title>
       <consumption>
-        <minutes>5</minutes>
-        <kWh>0,133</kWh>
+        <minutes>2</minutes>
+        <kW>1,87</kW>
       </consumption>
     </operation>
     <operation>
       <title>1 litra</title>
       <consumption>
-        <seconds>600</seconds>
-        <kW>1,6</kW>
+      <minutes>4</minutes>
+      <kW>1,87</kW>
       </consumption>
     </operation>
     <operation>
       <title>1,8 litraa</title>
       <consumption>
-        <minutes>18</minutes>
-        <kW>1,6</kW>
+        <seconds>432</seconds>
+        <kW>1,87</kW>
       </consumption>
     </operation>
   </device>
@@ -29,10 +29,31 @@
     <title>Tiskikone</title>
     <image>astianpesukone.jpg</image>
     <operation>
-      <title>1h pika 60</title>
+      <title>1h pika 65</title>
       <consumption>
         <minutes>65</minutes>
-        <kWh>1,4</kWh>
+        <kWh>1,13</kWh>
+      </consumption>
+    </operation>
+    <operation>
+      <title>1h pika 60 + luukku</title>
+      <consumption>
+        <minutes>115</minutes>
+        <kWh>1,09</kWh>
+      </consumption>
+    </operation>
+    <operation>
+      <title>Eco 50</title>
+      <consumption>
+        <minutes>205</minutes>
+        <kWh>0,9</kWh>
+      </consumption>
+    </operation>
+    <operation>
+      <title>Auto 45-65 + luukku</title>
+      <consumption>
+        <minutes>155</minutes>
+        <kWh>1,09</kWh>
       </consumption>
     </operation>
   </device>
