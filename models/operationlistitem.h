@@ -22,8 +22,11 @@ public:
     void recalculateValues(const Clock* clock, const PriceFetcher* priceFetcher);
 private:
     bool isContinuous() const;
-    QString costString(const QDateTime& time, const Clock *clock, const PriceFetcher* priceFetcher);
-    QString continuousCostString(int hours, const Clock *clock, const PriceFetcher* priceFetcher);
+    QString costString(const QDateTime& time, const Clock *clock, const PriceFetcher* priceFetcher) const;
+    QString continuousCostString(int hours, const Clock *clock, const PriceFetcher* priceFetcher) const;
+    QString lowestCostString(QString& timeTitle, const Clock *clock, const PriceFetcher* priceFetcher) const;
+    qreal consumptionCost(const QDateTime& time, const Clock *clock, const PriceFetcher* priceFetcher) const;
+    qreal cost(qreal kW, int seconds, QDateTime& timeOfStart, const Clock *clock, const PriceFetcher* priceFetcher) const;
     QList<Consumption> m_consumptions;
     QString m_title;
     QString m_nextHourString;
