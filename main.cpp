@@ -1,5 +1,5 @@
 #include "models/devicelistmodel.h"
-#include "datasources/pricefetcher.h"
+#include "datasources/fetcherfactory.h"
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -18,11 +18,11 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
     Clock clock;
-    PriceFetcher priceSource(&clock);
+    QScopedPointer<PriceFetcher> priceSource{FetcherFactory::getFetcherImplementation(&clock)};
     qmlRegisterType<DeviceListModel>("listmodels", 1, 0, "DeviceListModel");
     qmlRegisterSingletonType(QUrl("qrc:/qml/singletons/Constants.qml"), "config", 1, 0, "Constants");
     qmlRegisterSingletonInstance("datasources", 1, 0, "Clock", &clock);
-    qmlRegisterSingletonInstance("datasources", 1, 0, "PriceFetcher", &priceSource);
+    qmlRegisterSingletonInstance("datasources", 1, 0, "PriceFetcher", priceSource.data());
     const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {

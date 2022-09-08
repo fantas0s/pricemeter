@@ -14,7 +14,6 @@ SOURCES += \
         models/devicelistmodel.cpp \
         models/operationlistitem.cpp \
         models/operationsmodel.cpp \
-        utils/htmltableextractor.cpp \
         utils/xmlfilereader.cpp
 
 RESOURCES += qml.qrc \
@@ -35,10 +34,30 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     datasources/clock.h \
     datasources/pricefetcher.h \
+    datasources/fetcherfactory.h \
     models/consumption.h \
     models/devicelistitem.h \
     models/devicelistmodel.h \
     models/operationlistitem.h \
     models/operationsmodel.h \
-    utils/htmltableextractor.h \
     utils/xmlfilereader.h
+
+html_api {
+    HEADERS += \
+        deprecated/htmlfetcher.h \
+        deprecated/htmltableextractor.h
+
+    SOURCES += \
+        deprecated/fetcherfactory.cpp \
+        deprecated/htmlfetcher.cpp \
+        deprecated/htmltableextractor.cpp
+}
+
+rest_api {
+    HEADERS += \
+        restapi/xmlfetcher.h
+
+    SOURCES += \
+        restapi/xmlfetcher.cpp \
+        restapi/fetcherfactory.cpp
+}
