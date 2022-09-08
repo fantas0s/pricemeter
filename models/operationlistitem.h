@@ -5,6 +5,7 @@
 #include <QColor>
 
 class Clock;
+class PriceFetcher;
 
 class OperationListItem
 {
@@ -18,12 +19,18 @@ public:
     QList<Consumption> consumptions() const;
     void setTitle(const QString& value);
     void addConsumption(const Consumption& value);
-    void recalculateValues(const Clock* clock);
+    void recalculateValues(const Clock* clock, const PriceFetcher* priceFetcher);
 private:
     bool isContinuous() const;
+    QString costString(const QDateTime& time, const Clock *clock, const PriceFetcher* priceFetcher);
+    QString continuousCostString(int hours, const Clock *clock, const PriceFetcher* priceFetcher);
     QList<Consumption> m_consumptions;
     QString m_title;
     QString m_nextHourString;
     QString m_twoHoursString;
     QString m_lowestCostTimeString;
+    QString m_currentCost;
+    QString m_nextHourCost;
+    QString m_twoHoursCost;
+    QString m_lowestCost;
 };

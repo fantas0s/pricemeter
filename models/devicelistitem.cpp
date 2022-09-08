@@ -47,10 +47,10 @@ void DeviceListItem::addOperations(const QList<OperationListItem> &newOperations
     m_operations.append(newOperations);
 }
 
-void DeviceListItem::recalculateValues(const Clock *clock)
+void DeviceListItem::recalculateValues(const Clock *clock, const PriceFetcher* priceFetcher)
 {
     if (!m_model) {
         m_model = new OperationsModel(m_operations);
     }
-    m_model->recalculateValues(clock);
+    m_model->recalculateValues(clock, priceFetcher);
 }

@@ -7,6 +7,7 @@
 class Clock;
 class QAbstractItemModel;
 class OperationsModel;
+class PriceFetcher;
 
 class DeviceListItem
 {
@@ -20,7 +21,7 @@ public:
     void setImageFile(const QString& newName);
     QAbstractItemModel* operationsModel();
     void addOperations(const QList<OperationListItem>& newOperations);
-    void recalculateValues(const Clock* clock);
+    void recalculateValues(const Clock* clock, const PriceFetcher* priceFetcher);
 private:
      QList<OperationListItem> m_operations;
      QString m_title;

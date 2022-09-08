@@ -6,13 +6,15 @@ C++=13
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        datasources/clock.cpp \
+        datasources/pricefetcher.cpp \
         main.cpp \
         models/consumption.cpp \
         models/devicelistitem.cpp \
         models/devicelistmodel.cpp \
         models/operationlistitem.cpp \
         models/operationsmodel.cpp \
-        utils/clock.cpp \
+        utils/htmltableextractor.cpp \
         utils/xmlfilereader.cpp
 
 RESOURCES += qml.qrc \
@@ -31,10 +33,12 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    datasources/clock.h \
+    datasources/pricefetcher.h \
     models/consumption.h \
     models/devicelistitem.h \
     models/devicelistmodel.h \
     models/operationlistitem.h \
     models/operationsmodel.h \
-    utils/clock.h \
+    utils/htmltableextractor.h \
     utils/xmlfilereader.h

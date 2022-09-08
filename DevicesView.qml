@@ -1,13 +1,14 @@
 import QtQuick 2.15
 import config 1.0
 import listmodels 1.0
-import utils 1.0
+import datasources 1.0
 
 Item {
     id: _devicesViewRoot
     DeviceListModel {
         id: _allDevices
         clock: Clock
+        priceFetcher: PriceFetcher
     }
     PathView {
         id: _devicesList

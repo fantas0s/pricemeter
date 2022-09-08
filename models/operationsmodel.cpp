@@ -1,4 +1,5 @@
 #include "operationsmodel.h"
+#include <QDebug>
 
 static const int s_valueCount = 4;
 
@@ -61,10 +62,10 @@ QHash<int, QByteArray> OperationsModel::roleNames() const
     return returnValue;
 }
 
-void OperationsModel::recalculateValues(const Clock *clock)
+void OperationsModel::recalculateValues(const Clock *clock, const PriceFetcher* priceFetcher)
 {
     for (OperationListItem& item : m_items) {
-        item.recalculateValues(clock);
+        item.recalculateValues(clock, priceFetcher);
     }
     if (rowCount()) {
         emit dataChanged(index(0), index(rowCount() -1));

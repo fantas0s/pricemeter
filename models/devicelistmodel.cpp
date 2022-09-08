@@ -48,13 +48,28 @@ void DeviceListModel::setClock(QObject *clockPtr)
     }
     m_clock = qobject_cast<Clock*>(clockPtr);
     connect(m_clock, &Clock::minuteChanged, this, &DeviceListModel::refreshItems);
-    refreshItems();
+    if (m_clock && m_priceFetcher) {
+        refreshItems();
+    }
     emit clockChanged();
+}
+
+void DeviceListModel::setPriceFetcher(QObject *priceFetcherPtr)
+{
+    if (m_priceFetcher) {
+        disconnect(m_priceFetcher, &PriceFetcher::pricesUpdated, this, &DeviceListModel::refreshItems);
+    }
+    m_priceFetcher = qobject_cast<PriceFetcher*>(priceFetcherPtr);
+    connect(m_priceFetcher, &PriceFetcher::pricesUpdated, this, &DeviceListModel::refreshItems);
+    if (m_clock && m_priceFetcher) {
+        refreshItems();
+    }
+    emit priceFetcherChanged();
 }
 
 void DeviceListModel::refreshItems()
 {
     for (DeviceListItem& item : m_items) {
-        item.recalculateValues(m_clock);
+        item.recalculateValues(m_clock, m_priceFetcher);
     }
 }

@@ -10,8 +10,9 @@ class Clock : public QObject
 public:
     explicit Clock(QObject *parent = nullptr);
     QString currentTimeString() const {return m_currentTimeString;}
-    QTime currentTime() const {return m_currentTime;}
-    QTime nextEvenHour() const {return m_nextEvenHour;}
+    QDateTime currentTime() const {return m_currentTime;}
+    QDateTime toEvenHour(const QDateTime& time) const;
+    QDateTime nextEvenHour() const {return m_nextEvenHour;}
 signals:
     void secondChanged();
     void minuteChanged();
@@ -20,8 +21,8 @@ protected:
     void timerEvent(QTimerEvent *event) override;
 private:
     QString m_currentTimeString;
-    QTime m_currentTime;
-    QTime m_nextEvenHour;
+    QDateTime m_currentTime;
+    QDateTime m_nextEvenHour;
     int m_currentHour = -1;
     int m_currentMinute = -1;
 };
