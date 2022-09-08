@@ -1,11 +1,11 @@
 <RCC>
     <qresource prefix="/">
-        <file>main.qml</file>
-        <file>singletons/Constants.qml</file>
-        <file>Header.qml</file>
-        <file>DevicesView.qml</file>
-        <file>DeviceListDelegate.qml</file>
-        <file>OperationsListDelegate.qml</file>
-        <file>OperationRow.qml</file>
+        <file>qml/main.qml</file>
+        <file>qml/singletons/Constants.qml</file>
+        <file>qml/Header.qml</file>
+        <file>qml/DevicesView.qml</file>
+        <file>qml/DeviceListDelegate.qml</file>
+        <file>qml/OperationsListDelegate.qml</file>
+        <file>qml/OperationRow.qml</file>
     </qresource>
 </RCC>

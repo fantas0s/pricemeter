@@ -20,10 +20,10 @@ int main(int argc, char *argv[])
     Clock clock;
     PriceFetcher priceSource(&clock);
     qmlRegisterType<DeviceListModel>("listmodels", 1, 0, "DeviceListModel");
-    qmlRegisterSingletonType(QUrl("qrc:/singletons/Constants.qml"), "config", 1, 0, "Constants");
+    qmlRegisterSingletonType(QUrl("qrc:/qml/singletons/Constants.qml"), "config", 1, 0, "Constants");
     qmlRegisterSingletonInstance("datasources", 1, 0, "Clock", &clock);
     qmlRegisterSingletonInstance("datasources", 1, 0, "PriceFetcher", &priceSource);
-    const QUrl url(QStringLiteral("qrc:/main.qml"));
+    const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
         if (!obj && url == objUrl)
