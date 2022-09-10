@@ -29,7 +29,7 @@ Item {
         anchors.bottom: _deviceTitle.top
         anchors.left: parent.left
         anchors.margins: Constants.deviceDelegateBorderMargin
-        width: parent.width / 2 - Constants.deviceDelegateBorderMargin
+        width: parent.width / 3 - Constants.deviceDelegateBorderMargin
         source: model.imageFile
         fillMode: Image.PreserveAspectFit
     }
@@ -38,7 +38,7 @@ Item {
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         anchors.margins: Constants.deviceDelegateBorderMargin
-        width: parent.width / 2 - Constants.deviceDelegateBorderMargin
+        width: parent.width / 3 - Constants.deviceDelegateBorderMargin
         height: contentHeight
         font.pixelSize: Constants.deviceTitleFontMaxSize
         fontSizeMode: Text.HorizontalFit
@@ -53,7 +53,7 @@ Item {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.margins: Constants.deviceDelegateBorderMargin
-        width: parent.width / 2 - Constants.deviceDelegateBorderMargin
+        width: 2 * parent.width / 3 - Constants.deviceDelegateBorderMargin
         model: _deviceListDelegateRoot.modelForOperations
         snapMode: ListView.SnapToItem
         delegate: OperationsListDelegate {

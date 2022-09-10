@@ -21,19 +21,26 @@ public:
     void addConsumption(const Consumption& value);
     void recalculateValues(const Clock* clock, const PriceFetcher* priceFetcher);
 private:
+    enum class TextIndex {
+        ThisHour = 0,
+        NextHour = 1,
+        TwoHours = 2,
+        LowestCost = 3
+    };
     bool isContinuous() const;
-    QString costString(const QDateTime& time, const Clock *clock, const PriceFetcher* priceFetcher) const;
-    QString continuousCostString(int hours, const Clock *clock, const PriceFetcher* priceFetcher) const;
-    QString lowestCostString(QString& timeTitle, const Clock *clock, const PriceFetcher* priceFetcher) const;
-    qreal consumptionCost(const QDateTime& time, const Clock *clock, const PriceFetcher* priceFetcher) const;
-    qreal cost(qreal kW, int seconds, QDateTime& timeOfStart, const Clock *clock, const PriceFetcher* priceFetcher) const;
+    QString continuousCostString(int hours) const;
+    void calculateLowestCostStringsAndValues();
+    qreal consumptionCost(const QDateTime& time) const;
+    qreal cost(qreal kW, int seconds, QDateTime& timeOfStart) const;
+    QString centsToEuroString(qreal costInCents) const;
+    QColor textColorFromCost(qreal cost) const;
     QList<Consumption> m_consumptions;
+    const Clock *m_clock = nullptr;
+    const PriceFetcher* m_priceFetcher = nullptr;
     QString m_title;
-    QString m_nextHourString;
-    QString m_twoHoursString;
-    QString m_lowestCostTimeString;
-    QString m_currentCost;
-    QString m_nextHourCost;
-    QString m_twoHoursCost;
-    QString m_lowestCost;
+    QStringList m_timeStrings;
+    QStringList m_costStrings;
+    QList<QColor> m_costColors;
+    qreal m_lowestCostValue = 0;
+    qreal m_highestCostValue = 0;
 };

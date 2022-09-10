@@ -1,11 +1,22 @@
 #include "operationlistitem.h"
 #include "datasources/clock.h"
 #include "datasources/pricefetcher.h"
-
+#include <QLocale>
 #include <QObject>
 
+static const int s_textCount = 4;
+
 OperationListItem::OperationListItem()
-{}
+{
+    for (int idx = 0 ; idx < s_textCount ; ++idx)
+    {
+        m_timeStrings.append("");
+        m_costStrings.append("");
+        m_costColors.append(QColor(255, 255, 255));
+    }
+    m_timeStrings[static_cast<int>(TextIndex::ThisHour)] = QObject::tr("Now:");
+    m_costColors[static_cast<int>(TextIndex::LowestCost)] = QColor(0, 255, 0); // Always green
+}
 
 bool OperationListItem::isValid() const
 {
@@ -26,36 +37,18 @@ QString OperationListItem::itemTitle(int index) const
             return QObject::tr("24 hours:");
         }
     } else {
-        switch (index) {
-        case 0:
-            return QObject::tr("Now:");
-        case 1:
-            return m_nextHourString;
-        case 2:
-            return m_twoHoursString;
-        default:
-            return m_lowestCostTimeString;
-        }
+        return m_timeStrings.at(index);
     }
 }
 
 QString OperationListItem::itemValue(int index) const
 {
-    switch (index) {
-    case 0:
-        return m_currentCost;
-    case 1:
-        return m_nextHourCost;
-    case 2:
-        return m_twoHoursCost;
-    default:
-        return m_lowestCost;
-    }
+    return m_costStrings.at(index);
 }
 
 QColor OperationListItem::valueColor(int index) const
 {
-    return QColor(255,255,255);
+    return m_costColors.at(index);
 }
 
 QString OperationListItem::title() const
@@ -80,22 +73,35 @@ void OperationListItem::addConsumption(const Consumption &value)
 
 void OperationListItem::recalculateValues(const Clock *clock, const PriceFetcher* priceFetcher)
 {
-    int minutes = 60 - clock->currentTime().time().minute();
+    m_clock = clock;
+    m_priceFetcher = priceFetcher;
+    int minutes = 60 - m_clock->currentTime().time().minute();
+    const QTime twoHoursTime = m_clock->nextEvenHour().addSecs(3600).time();
     /* Titles */
-    m_nextHourString = QObject::tr("In %1 minute(s):", "", minutes).arg(minutes);
-    m_twoHoursString = clock->nextEvenHour().addSecs(3600).toString("hh:mm")+QString(":");
-    m_lowestCostTimeString = "00:00";
+    m_timeStrings[static_cast<int>(TextIndex::NextHour)] = QObject::tr("In %n minute(s):", "", minutes);
+    m_timeStrings[static_cast<int>(TextIndex::TwoHours)] = QLocale::system().toString(twoHoursTime, "hh:mm")+QObject::tr(":");
+    m_timeStrings[static_cast<int>(TextIndex::LowestCost)] = QObject::tr("00:00");
     /* Values */
     if (isContinuous()) {
-        m_currentCost = continuousCostString(1, clock, priceFetcher);
-        m_nextHourCost = continuousCostString(2, clock, priceFetcher);
-        m_twoHoursCost = continuousCostString(8, clock, priceFetcher);
-        m_lowestCost = continuousCostString(24, clock, priceFetcher);
+        m_costStrings[static_cast<int>(TextIndex::ThisHour)] = continuousCostString(1);
+        m_costStrings[static_cast<int>(TextIndex::NextHour)] = continuousCostString(2);
+        m_costStrings[static_cast<int>(TextIndex::TwoHours)] = continuousCostString(8);
+        m_costStrings[static_cast<int>(TextIndex::LowestCost)] = continuousCostString(24);
+        m_costColors = {QColor(0, 255, 0),
+                        QColor(128, 255, 0),
+                        QColor(255, 128, 0),
+                        QColor(255, 0, 0)};
     } else {
-        m_currentCost = costString(clock->currentTime(), clock, priceFetcher);
-        m_nextHourCost = costString(clock->nextEvenHour(), clock, priceFetcher);
-        m_twoHoursCost = costString(clock->nextEvenHour().addSecs(3600), clock, priceFetcher);
-        m_lowestCost = lowestCostString(m_lowestCostTimeString, clock, priceFetcher);
+        qreal thisHourCost = consumptionCost(m_clock->currentTime());
+        qreal nextHourCost = consumptionCost(m_clock->nextEvenHour());
+        qreal twoHourCost = consumptionCost(m_clock->nextEvenHour().addSecs(3600));
+        m_costStrings[static_cast<int>(TextIndex::ThisHour)] = centsToEuroString(thisHourCost);
+        m_costStrings[static_cast<int>(TextIndex::NextHour)] = centsToEuroString(nextHourCost);
+        m_costStrings[static_cast<int>(TextIndex::TwoHours)] = centsToEuroString(twoHourCost);
+        calculateLowestCostStringsAndValues();
+        m_costColors[static_cast<int>(TextIndex::ThisHour)] = textColorFromCost(thisHourCost);
+        m_costColors[static_cast<int>(TextIndex::NextHour)] = textColorFromCost(nextHourCost);
+        m_costColors[static_cast<int>(TextIndex::TwoHours)] = textColorFromCost(twoHourCost);
     }
 }
 
@@ -104,81 +110,66 @@ bool OperationListItem::isContinuous() const
     return (m_consumptions.isEmpty() || (m_consumptions.first().time().msecsSinceStartOfDay() == 0));
 }
 
-QString OperationListItem::costString(const QDateTime &time, const Clock *clock, const PriceFetcher *priceFetcher) const
-{
-    qreal combinedCost = consumptionCost(time, clock, priceFetcher);
-    /* cost is in cents. */
-    if (combinedCost >= 100.0) {
-        combinedCost = combinedCost / 100.0;
-        return QObject::tr("%1 €").arg(combinedCost, 0, 'f', 2);
-    } else {
-        return QObject::tr("%1 c").arg(combinedCost, 0, 'f', 2);
-    }
-}
-
-QString OperationListItem::continuousCostString(int hours, const Clock *clock, const PriceFetcher *priceFetcher) const
+QString OperationListItem::continuousCostString(int hours) const
 {
     /* Always only one consumption rate for continuous */
     const qreal kW = m_consumptions.first().kW();
-    QDateTime momentToEvaluate = clock->currentTime();
+    QDateTime momentToEvaluate = m_clock->currentTime();
     const int seconds = 60 * 60 * hours;
-    qreal localCost = cost(kW, seconds, momentToEvaluate, clock, priceFetcher);
+    qreal localCost = cost(kW, seconds, momentToEvaluate);
     /* cost is in cents. */
-    if (localCost >= 100.0) {
-        localCost = localCost / 100.0;
-        return QObject::tr("%1 €").arg(localCost, 0, 'f', 2);
-    } else {
-        return QObject::tr("%1 c").arg(localCost, 0, 'f', 2);
-    }
+    return centsToEuroString(localCost);
 }
 
-QString OperationListItem::lowestCostString(QString &timeTitle, const Clock *clock, const PriceFetcher *priceFetcher) const
+void OperationListItem::calculateLowestCostStringsAndValues()
 {
     /* Get next even hour */
-    const QDateTime baseTime = clock->toEvenHour(clock->currentTime().addSecs(3600));
+    const QDateTime baseTime = m_clock->toEvenHour(m_clock->currentTime().addSecs(3600));
     int lowestCostAdd = 0;
-    qreal lowestCost = 0;
+    m_lowestCostValue = 0;
+    m_highestCostValue = 0;
     /* Try next 23 hours. */
     for (int additionalHours = 0 ; additionalHours < 24 ; ++additionalHours)
     {
-        const qreal costOfHour = consumptionCost(baseTime.addSecs(3600 * additionalHours), clock, priceFetcher);
-        if ((lowestCost == 0) ||
-            (lowestCost > costOfHour)) {
-            lowestCost = costOfHour;
-            lowestCostAdd = additionalHours;
+        const qreal costOfHour = consumptionCost(baseTime.addSecs(3600 * additionalHours));
+        if (costOfHour > 0) {
+            if ((m_lowestCostValue == 0) ||
+                (m_lowestCostValue > costOfHour)) {
+                m_lowestCostValue = costOfHour;
+                lowestCostAdd = additionalHours;
+            }
+            if ((m_highestCostValue == 0) ||
+                (m_highestCostValue < costOfHour)) {
+                m_highestCostValue = costOfHour;
+            }
         }
     }
-    timeTitle = baseTime.addSecs(3600 * lowestCostAdd).toString("hh:mm");
-    /* lowestCost is in cents. */
-    if (lowestCost >= 100.0) {
-        lowestCost = lowestCost / 100.0;
-        return QObject::tr("%1 €").arg(lowestCost, 0, 'f', 2);
-    } else {
-        return QObject::tr("%1 c").arg(lowestCost, 0, 'f', 2);
-    }
+    m_timeStrings[static_cast<int>(TextIndex::LowestCost)] = baseTime.addSecs(3600 * lowestCostAdd).toString("hh:mm");
+    /* m_lowestCostValue is in cents. */
+    m_costStrings[static_cast<int>(TextIndex::LowestCost)] = centsToEuroString(m_lowestCostValue);
 }
 
-qreal OperationListItem::consumptionCost(const QDateTime &time, const Clock *clock, const PriceFetcher *priceFetcher) const
+qreal OperationListItem::consumptionCost(const QDateTime &time) const
 {
     qreal combinedCost = 0;
     QDateTime momentToEvaluate = time;
     for (const auto& consumption : m_consumptions) {
         qreal kW = consumption.kW();
         int secondsToConsume = consumption.time().msecsSinceStartOfDay() / 1000;
-        combinedCost += cost(kW, secondsToConsume, momentToEvaluate, clock, priceFetcher);
+        combinedCost += cost(kW, secondsToConsume, momentToEvaluate);
     }
     return combinedCost;
 }
 
-qreal OperationListItem::cost(qreal kW, int seconds, QDateTime &timeOfStart, const Clock *clock, const PriceFetcher *priceFetcher) const
+qreal OperationListItem::cost(qreal kW, int seconds, QDateTime &timeOfStart) const
 {
     qreal cost = 0;
-    qreal price = priceFetcher->getPrice(clock->toEvenHour(timeOfStart));
+    qreal price = m_priceFetcher->getPrice(m_clock->toEvenHour(timeOfStart));
     while (seconds > 0) {
         /* Consume minutes up to next full hour */
-        const QDateTime searchTime = clock->toEvenHour(timeOfStart);
+        const QDateTime searchTime = m_clock->toEvenHour(timeOfStart);
         /* In case we haven't got price data yet, use the last we got. */
-        const qreal tempPrice = priceFetcher->getPrice(searchTime);
+        const qreal tempPrice = m_priceFetcher->getPrice(searchTime);
         if (tempPrice > 0)
             price = tempPrice;
         const int remainingSeconds = 3600 - (60 * timeOfStart.time().minute()) - timeOfStart.time().second();
@@ -199,4 +190,36 @@ qreal OperationListItem::cost(qreal kW, int seconds, QDateTime &timeOfStart, con
         cost += price * kWh;
     }
     return cost;
+}
+
+QString OperationListItem::centsToEuroString(qreal costInCents) const
+{
+    /* starting from 10 cents we use euros (e.g. "0,10 €"). Until then it's cents (i.e. "9,99 c"). */
+    if (costInCents >= 10.0) {
+        costInCents = costInCents / 100.0;
+        return QObject::tr("%1 €").arg(costInCents, 0, 'f', 2);
+    } else {
+        return QObject::tr("%1 c").arg(costInCents, 0, 'f', 2);
+    }
+}
+
+QColor OperationListItem::textColorFromCost(qreal cost) const
+{
+    const qreal maxCost = m_highestCostValue - m_lowestCostValue;
+    const qreal normalizedCost = cost - m_lowestCostValue;
+    /* Merely a safety call */
+    if ((maxCost < 0) ||
+        (normalizedCost < 0)) {
+        return QColor(255,255,255);
+    }
+    if (maxCost == 0) {
+        return QColor(0, 255, 0); // Green, as cheapest price always
+    }
+    if ((normalizedCost / maxCost) < 0.5) {
+        /* Cheaper half */
+        return QColor::fromRgbF((normalizedCost / maxCost) * 2.0, 1.0, 0.0);
+    } else {
+        /* more expensive half */
+        return QColor::fromRgbF(1.0, 2 - ((normalizedCost / maxCost) * 2.0), 0.0);
+    }
 }

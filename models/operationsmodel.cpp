@@ -1,5 +1,4 @@
 #include "operationsmodel.h"
-#include <QDebug>
 
 static const int s_valueCount = 4;
 

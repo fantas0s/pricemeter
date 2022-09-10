@@ -1,6 +1,7 @@
 #include "models/devicelistmodel.h"
 #include "datasources/fetcherfactory.h"
 
+#include <QTranslator>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
@@ -15,7 +16,12 @@ int main(int argc, char *argv[])
 #endif
     }
     QGuiApplication app(argc, argv);
-
+    QTranslator translator;
+    if (!translator.load(QLocale(), QString("pricemeter"), QLatin1String("_"), QLatin1String(":/translations"))) {
+        qWarning() << "No translation for locale" << QLocale() << "using en_US instead";
+        translator.load(QLatin1String(":/translations/pricemeter_en_US.qm"));
+    }
+    QCoreApplication::installTranslator(&translator);
     QQmlApplicationEngine engine;
     Clock clock;
     QScopedPointer<PriceFetcher> priceSource{FetcherFactory::getFetcherImplementation(&clock)};

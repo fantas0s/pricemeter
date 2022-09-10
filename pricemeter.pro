@@ -5,6 +5,12 @@ C++=13
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+TRANSLATIONS += \
+    translations/pricemeter_en_US.ts \
+    translations/pricemeter_fi_FI.ts
+
+CONFIG += embed_translations
+
 SOURCES += \
         datasources/clock.cpp \
         datasources/pricefetcher.cpp \
@@ -18,7 +24,8 @@ SOURCES += \
 
 RESOURCES += qml.qrc \
     appdata.qrc \
-    images.qrc
+    images.qrc \
+    translations.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =

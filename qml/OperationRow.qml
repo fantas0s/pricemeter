@@ -8,7 +8,7 @@ Item {
     property alias valueTextColor: _value.color
     Item {
         height: parent.height
-        width: 2 * parent.width / 3 - 2 * Constants.operationDelegateTextBoxMargin
+        width: parent.width / 2 - 2 * Constants.operationDelegateTextBoxMargin
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom
@@ -30,7 +30,7 @@ Item {
         border.width: 1
         radius: 5
         height: parent.height
-        width: parent.width / 3 - 2 * Constants.operationDelegateTextBoxMargin
+        width: parent.width / 2 - 2 * Constants.operationDelegateTextBoxMargin
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom

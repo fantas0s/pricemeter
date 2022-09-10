@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>translations/pricemeter_en_US.qm</file>
+        <file>translations/pricemeter_fi_FI.qm</file>
+    </qresource>
+</RCC>

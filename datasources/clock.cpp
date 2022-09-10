@@ -1,5 +1,6 @@
 #include "clock.h"
 #include <QDateTime>
+#include <QLocale>
 
 Clock::Clock(QObject *parent)
     : QObject{parent}
@@ -17,7 +18,7 @@ void Clock::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event);
     QDateTime date = QDateTime::currentDateTime();
-    m_currentTimeString = date.toString("hh:mm:ss");
+    m_currentTimeString = QLocale::system().toString(date.time(), "hh:mm:ss");
     m_currentTime = QDateTime(date.date(), QTime(date.time().hour(), date.time().minute()));
     bool signalMinute = false;
     bool signalHour = false;
