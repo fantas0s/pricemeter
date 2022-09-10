@@ -5,6 +5,10 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 
+/* Here should be an URL which contains a table with proper values.
+ * Naturally such an abuse of public website is not recommended or encouraged, so the URL is omitted. */
+static const QLatin1String s_url("");
+
 HtmlFetcher::HtmlFetcher(Clock* clock)
     : PriceFetcher{clock}
 {
