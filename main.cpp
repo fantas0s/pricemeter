@@ -1,9 +1,12 @@
 #include "models/devicelistmodel.h"
 #include "datasources/fetcherfactory.h"
+#include "utils/debuginfo.h"
+#include "utils/pricecolor.h"
 
 #include <QTranslator>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 
 int main(int argc, char *argv[])
 {
@@ -23,9 +26,12 @@ int main(int argc, char *argv[])
     }
     QCoreApplication::installTranslator(&translator);
     QQmlApplicationEngine engine;
+    DebugInfo* debugInfo = DebugInfo::instance();
+    engine.rootContext()->setContextProperty("debugObj", debugInfo);
     Clock clock;
     QScopedPointer<PriceFetcher> priceSource{FetcherFactory::getFetcherImplementation(&clock)};
     qmlRegisterType<DeviceListModel>("listmodels", 1, 0, "DeviceListModel");
+    qmlRegisterType<PriceColor>("utils", 1, 0, "PriceColor");
     qmlRegisterSingletonType(QUrl("qrc:/qml/singletons/Constants.qml"), "config", 1, 0, "Constants");
     qmlRegisterSingletonInstance("datasources", 1, 0, "Clock", &clock);
     qmlRegisterSingletonInstance("datasources", 1, 0, "PriceFetcher", priceSource.data());

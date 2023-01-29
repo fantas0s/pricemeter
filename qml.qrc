@@ -7,5 +7,6 @@
         <file>qml/DeviceListDelegate.qml</file>
         <file>qml/OperationsListDelegate.qml</file>
         <file>qml/OperationRow.qml</file>
+        <file>qml/DebugPrint.qml</file>
     </qresource>
 </RCC>

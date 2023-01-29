@@ -20,6 +20,8 @@ SOURCES += \
         models/devicelistmodel.cpp \
         models/operationlistitem.cpp \
         models/operationsmodel.cpp \
+        utils/debuginfo.cpp \
+        utils/pricecolor.cpp \
         utils/xmlfilereader.cpp
 
 RESOURCES += qml.qrc \
@@ -47,6 +49,8 @@ HEADERS += \
     models/devicelistmodel.h \
     models/operationlistitem.h \
     models/operationsmodel.h \
+    utils/debuginfo.h \
+    utils/pricecolor.h \
     utils/xmlfilereader.h
 
 html_api {

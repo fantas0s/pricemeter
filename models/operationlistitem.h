@@ -28,12 +28,14 @@ private:
         LowestCost = 3
     };
     bool isContinuous() const;
+    qreal continuousCost(int hours) const;
     QString continuousCostString(int hours) const;
     void calculateLowestCostStringsAndValues();
     qreal consumptionCost(const QDateTime& time) const;
     qreal cost(qreal kW, int seconds, QDateTime& timeOfStart) const;
     QString centsToEuroString(qreal costInCents) const;
     QColor textColorFromCost(qreal cost) const;
+    void useContinuousColors();
     QList<Consumption> m_consumptions;
     const Clock *m_clock = nullptr;
     const PriceFetcher* m_priceFetcher = nullptr;

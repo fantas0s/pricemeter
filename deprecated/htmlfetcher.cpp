@@ -1,6 +1,9 @@
 #include "htmlfetcher.h"
 #include "htmltableextractor.h"
 #include "datasources/clock.h"
+#ifdef DEBUG_NETWORK_ACCESS
+#include "utils/debuginfo.h"
+#endif
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -86,6 +89,12 @@ void HtmlFetcher::networkReplyReceived(QNetworkReply *reply)
 
 void HtmlFetcher::fetchData(QString fromDate)
 {
+#ifdef DEBUG_NETWORK_ACCESS
+    static int fetches = 1;
+    DebugInfo* debugInfo = DebugInfo::instance();
+    debugInfo->setDebugString(QString("Fetch number %1 at %2").arg(fetches).arg(QDateTime::currentDateTime().toString()));
+    fetches++;
+#endif
     m_accessManager->get(QNetworkRequest(QUrl(s_url.arg(fromDate))));
 }
 

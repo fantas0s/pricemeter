@@ -21,4 +21,12 @@ Window {
         anchors.top: _header.bottom
         anchors.bottom: parent.bottom
     }
+    Loader {
+        id: _debugPrint
+        anchors.top: parent.top
+        anchors.topMargin: 2
+        anchors.left: parent.left
+        anchors.leftMargin: 2
+        source: debugObj.debugString !== "" ? "DebugPrint.qml" : ""
+    }
 }

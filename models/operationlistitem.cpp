@@ -1,6 +1,7 @@
 #include "operationlistitem.h"
 #include "datasources/clock.h"
 #include "datasources/pricefetcher.h"
+#include "utils/pricecolor.h"
 #include <QLocale>
 #include <QObject>
 
@@ -87,10 +88,7 @@ void OperationListItem::recalculateValues(const Clock *clock, const PriceFetcher
         m_costStrings[static_cast<int>(TextIndex::NextHour)] = continuousCostString(2);
         m_costStrings[static_cast<int>(TextIndex::TwoHours)] = continuousCostString(8);
         m_costStrings[static_cast<int>(TextIndex::LowestCost)] = continuousCostString(24);
-        m_costColors = {QColor(0, 255, 0),
-                        QColor(128, 255, 0),
-                        QColor(255, 128, 0),
-                        QColor(255, 0, 0)};
+        useContinuousColors();
     } else {
         qreal thisHourCost = consumptionCost(m_clock->currentTime());
         qreal nextHourCost = consumptionCost(m_clock->nextEvenHour());
@@ -110,15 +108,20 @@ bool OperationListItem::isContinuous() const
     return (m_consumptions.isEmpty() || (m_consumptions.first().time().msecsSinceStartOfDay() == 0));
 }
 
-QString OperationListItem::continuousCostString(int hours) const
+qreal OperationListItem::continuousCost(int hours) const
 {
     /* Always only one consumption rate for continuous */
     const qreal kW = m_consumptions.first().kW();
     QDateTime momentToEvaluate = m_clock->currentTime();
     const int seconds = 60 * 60 * hours;
-    qreal localCost = cost(kW, seconds, momentToEvaluate);
+    /* Cost in cents */
+    return cost(kW, seconds, momentToEvaluate);
+}
+
+QString OperationListItem::continuousCostString(int hours) const
+{
     /* cost is in cents. */
-    return centsToEuroString(localCost);
+    return centsToEuroString(continuousCost(hours));
 }
 
 void OperationListItem::calculateLowestCostStringsAndValues()
@@ -205,21 +208,25 @@ QString OperationListItem::centsToEuroString(qreal costInCents) const
 
 QColor OperationListItem::textColorFromCost(qreal cost) const
 {
-    const qreal maxCost = m_highestCostValue - m_lowestCostValue;
-    const qreal normalizedCost = cost - m_lowestCostValue;
-    /* Merely a safety call */
-    if ((maxCost < 0) ||
-        (normalizedCost < 0)) {
-        return QColor(255,255,255);
-    }
-    if (maxCost == 0) {
-        return QColor(0, 255, 0); // Green, as cheapest price always
-    }
-    if ((normalizedCost / maxCost) < 0.5) {
-        /* Cheaper half */
-        return QColor::fromRgbF((normalizedCost / maxCost) * 2.0, 1.0, 0.0);
-    } else {
-        /* more expensive half */
-        return QColor::fromRgbF(1.0, 2 - ((normalizedCost / maxCost) * 2.0), 0.0);
-    }
+    PriceColor color;
+    color.setPrice(cost);
+    color.setMaxPrice(m_highestCostValue);
+    color.setMinPrice(m_lowestCostValue);
+    return color.color();
+}
+
+void OperationListItem::useContinuousColors()
+{
+    PriceColor color;
+    color.setMaxPrice(color.expensiveAreaLimit());
+    color.setMinPrice(color.cheapAreaLimit());
+    m_costColors.clear();
+    color.setPrice(continuousCost(1)); /* 1 hour */
+    m_costColors << color.color();
+    color.setPrice(continuousCost(2)); /* 2 hours */
+    m_costColors << color.color();
+    color.setPrice(continuousCost(8)); /* 8 hours */
+    m_costColors << color.color();
+    color.setPrice(continuousCost(24)); /* 24 hours */
+    m_costColors << color.color();
 }
