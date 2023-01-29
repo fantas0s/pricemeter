@@ -14,7 +14,7 @@ class PriceFetcher : public QObject
 public:
     explicit PriceFetcher(Clock* clock);
     virtual ~PriceFetcher() {};
-    virtual qreal getPrice(const QDateTime& evenHour) const = 0;
+    virtual qreal getPrice(const QDateTime& evenHourInUtc) const = 0;
     virtual QString currentPrice() const = 0;
 signals:
     void pricesUpdated();

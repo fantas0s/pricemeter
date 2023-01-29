@@ -4,5 +4,11 @@
         <file>images/hehkulamppu.jpg</file>
         <file>images/kiuas.png</file>
         <file>images/vedenkeitin.jpg</file>
+        <file>images/kuivausrumpu.jpg</file>
+        <file>images/pyykkikone.png</file>
+        <file>images/kahvinkeitin.jpg</file>
+        <file>images/tietokone.jpg</file>
+        <file>images/kattolamppu.jpg</file>
+        <file>images/jouluvalo.jpg</file>
     </qresource>
 </RCC>

@@ -164,12 +164,12 @@ qreal OperationListItem::consumptionCost(const QDateTime &time) const
 qreal OperationListItem::cost(qreal kW, int seconds, QDateTime &timeOfStart) const
 {
     qreal cost = 0;
-    qreal price = m_priceFetcher->getPrice(m_clock->toEvenHour(timeOfStart));
+    qreal price = m_priceFetcher->getPrice(m_clock->toEvenHour(timeOfStart).toUTC());
     while (seconds > 0) {
         /* Consume minutes up to next full hour */
         const QDateTime searchTime = m_clock->toEvenHour(timeOfStart);
         /* In case we haven't got price data yet, use the last we got. */
-        const qreal tempPrice = m_priceFetcher->getPrice(searchTime);
+        const qreal tempPrice = m_priceFetcher->getPrice(searchTime.toUTC());
         if (tempPrice > 0)
             price = tempPrice;
         const int remainingSeconds = 3600 - (60 * timeOfStart.time().minute()) - timeOfStart.time().second();

@@ -1,6 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <devicelist>
   <device>
+    <title>Valot</title>
+    <image>kattolamppu.jpg</image>
+    <operation>
+      <title>Keittiö</title>
+      <consumption>
+        <kW>0.224</kW>
+      </consumption>
+    </operation>
+    <operation>
+      <title>Olohuone</title>
+      <consumption>
+        <kW>0.224</kW>
+      </consumption>
+    </operation>
+    <operation>
+      <title>Keittiö + Olohuone</title>
+      <consumption>
+        <kW>0.448</kW>
+      </consumption>
+    </operation>
+  </device>
+  <device>
+    <title>Kahvinkeitin</title>
+    <image>kahvinkeitin.jpg</image>
+    <operation>
+      <title>Lämpimänä tunnin</title>
+      <consumption>
+        <minutes>6</minutes>
+        <kW>1.462</kW>
+      </consumption>
+      <consumption>
+        <minutes>54</minutes>
+        <kW>0.06</kW>
+      </consumption>
+    </operation>
+    <operation>
+      <title>Lämpimänä 2 tuntia</title>
+      <consumption>
+        <minutes>6</minutes>
+        <kW>1.462</kW>
+      </consumption>
+      <consumption>
+        <minutes>114</minutes>
+        <kW>0.06</kW>
+      </consumption>
+    </operation>
+    <operation>
+      <title>Lämpimänä 4 tuntia</title>
+      <consumption>
+        <minutes>6</minutes>
+        <kW>1.462</kW>
+      </consumption>
+      <consumption>
+        <minutes>234</minutes>
+        <kW>0.06</kW>
+      </consumption>
+    </operation>
+  </device>
+  <device>
     <title>Vedenkeitin</title>
     <image>vedenkeitin.jpg</image>
     <operation>
@@ -58,6 +117,42 @@
     </operation>
   </device>
   <device>
+    <title>Pyykkikone</title>
+    <image>pyykkikone.png</image>
+    <operation>
+      <title>Puuvilla 60</title>
+      <consumption>
+        <minutes>100</minutes>
+        <kWh>1</kWh>
+      </consumption>
+    </operation>
+    <operation>
+      <title>Siliävät 40</title>
+      <consumption>
+        <minutes>80</minutes>
+        <kWh>0,6</kWh>
+      </consumption>
+    </operation>
+  </device>
+  <device>
+    <title>Kuivausrumpu</title>
+    <image>kuivausrumpu.jpg</image>
+    <operation>
+      <title>Puuvilla hellävarainen 1h</title>
+      <consumption>
+        <minutes>60</minutes>
+        <kWh>0,9375</kWh>
+      </consumption>
+    </operation>
+    <operation>
+      <title>Puuvilla hellävarainen 2h</title>
+      <consumption>
+        <minutes>120</minutes>
+        <kWh>1,875</kWh>
+      </consumption>
+    </operation>
+  </device>
+  <device>
     <title>Sauna</title>
     <image>kiuas.png</image>
     <operation>
@@ -84,8 +179,17 @@
     </operation>
   </device>
   <device>
+    <title>Tietokone</title>
+    <image>tietokone.jpg</image>
+    <operation>
+      <consumption>
+        <kW>0.126</kW>
+      </consumption>
+    </operation>
+  </device>
+  <device>
     <title>Jouluvalo</title>
-    <image>koristevalo.png</image>
+    <image>jouluvalo.jpg</image>
     <operation>
       <consumption>
         <kW>0.006</kW>

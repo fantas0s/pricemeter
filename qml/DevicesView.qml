@@ -15,18 +15,18 @@ Item {
         anchors.fill: parent
         model: _allDevices
         delegate: DeviceListDelegate {}
-        property int pathStart: (_devicesViewRoot.width / 2) - (_devicesList.count * Constants.deviceDelegateWidth / 3.5)
+        property int pathStart: (_devicesViewRoot.width / 2) - ((_devicesList.count -1) * Constants.deviceDelegateWidth / 2)
         path: Path {
             startX: _devicesList.pathStart; startY: _devicesViewRoot.height / -2
             PathArc {
-                relativeX: _devicesList.count * Constants.deviceDelegateWidth / 1.75
+                relativeX: _devicesList.count * Constants.deviceDelegateWidth * 0.73
                 relativeY: 0
                 radiusX: relativeX / 2
                 radiusY: _devicesViewRoot.height
                 direction: PathArc.Counterclockwise
             }
             PathArc {
-                relativeX: Constants.deviceDelegateWidth / 1.35
+                relativeX: Constants.deviceDelegateWidth / (_devicesList.count * 0.1)
                 relativeY: 0
                 radiusX: relativeX / 2
                 radiusY: Constants.deviceDelegateHeight / 4
