@@ -8,6 +8,8 @@
 /* Here should be an URL which contains a table with proper values.
  * Naturally such an abuse of public website is not recommended or encouraged, so the URL is omitted. */
 static const QLatin1String s_url("");
+static const qreal s_alv = 0.10; /* tax in percent */
+static const qreal s_priceMargin = 0.22; /* cent / kWh */
 
 HtmlFetcher::HtmlFetcher(Clock* clock)
     : PriceFetcher{clock}
@@ -17,50 +19,50 @@ HtmlFetcher::HtmlFetcher(Clock* clock)
     m_accessManager = new QNetworkAccessManager(this);
     connect(m_accessManager, &QNetworkAccessManager::finished,
             this, &HtmlFetcher::networkReplyReceived);
-    const QString today = QDateTime::currentDateTime().toString("dd.MM.yyyy");
+    const QString today = QDateTime::currentDateTimeUtc().toString("dd.MM.yyyy");
     fetchData(today);
     QList<QPair<QString, QString>> defaultData;
-    defaultData << QPair<QString, QString>("00:00", "9.78");
-    defaultData << QPair<QString, QString>("01:00", "11.56");
-    defaultData << QPair<QString, QString>("02:00", "12.89");
-    defaultData << QPair<QString, QString>("03:00", "12.28");
-    defaultData << QPair<QString, QString>("04:00", "23.39");
-    defaultData << QPair<QString, QString>("05:00", "34.46");
-    defaultData << QPair<QString, QString>("06:00", "45.54");
-    defaultData << QPair<QString, QString>("07:00", "56.63");
-    defaultData << QPair<QString, QString>("08:00", "78.72");
-    defaultData << QPair<QString, QString>("09:00", "103.34");
-    defaultData << QPair<QString, QString>("10:00", "89.48");
-    defaultData << QPair<QString, QString>("11:00", "79.68");
-    defaultData << QPair<QString, QString>("12:00", "67.99");
-    defaultData << QPair<QString, QString>("13:00", "89.08");
-    defaultData << QPair<QString, QString>("14:00", "67.17");
-    defaultData << QPair<QString, QString>("15:00", "79.66");
-    defaultData << QPair<QString, QString>("16:00", "77.35");
-    defaultData << QPair<QString, QString>("17:00", "98.54");
-    defaultData << QPair<QString, QString>("18:00", "129.73");
-    defaultData << QPair<QString, QString>("19:00", "99.32");
-    defaultData << QPair<QString, QString>("20:00", "66.35");
-    defaultData << QPair<QString, QString>("21:00", "25.44");
-    defaultData << QPair<QString, QString>("22:00", "12.73");
-    defaultData << QPair<QString, QString>("23:00", "9.82");
-    updatePrices(defaultData, QDateTime::currentDateTime().date());
+    defaultData << QPair<QString, QString>("00:00", "00.01");
+    defaultData << QPair<QString, QString>("01:00", "00.01");
+    defaultData << QPair<QString, QString>("02:00", "00.01");
+    defaultData << QPair<QString, QString>("03:00", "00.01");
+    defaultData << QPair<QString, QString>("04:00", "00.01");
+    defaultData << QPair<QString, QString>("05:00", "00.01");
+    defaultData << QPair<QString, QString>("06:00", "00.01");
+    defaultData << QPair<QString, QString>("07:00", "00.01");
+    defaultData << QPair<QString, QString>("08:00", "00.01");
+    defaultData << QPair<QString, QString>("09:00", "00.01");
+    defaultData << QPair<QString, QString>("10:00", "00.01");
+    defaultData << QPair<QString, QString>("11:00", "00.01");
+    defaultData << QPair<QString, QString>("12:00", "00.01");
+    defaultData << QPair<QString, QString>("13:00", "00.01");
+    defaultData << QPair<QString, QString>("14:00", "00.01");
+    defaultData << QPair<QString, QString>("15:00", "00.01");
+    defaultData << QPair<QString, QString>("16:00", "00.01");
+    defaultData << QPair<QString, QString>("17:00", "00.01");
+    defaultData << QPair<QString, QString>("18:00", "00.01");
+    defaultData << QPair<QString, QString>("19:00", "00.01");
+    defaultData << QPair<QString, QString>("20:00", "00.01");
+    defaultData << QPair<QString, QString>("21:00", "00.01");
+    defaultData << QPair<QString, QString>("22:00", "00.01");
+    defaultData << QPair<QString, QString>("23:00", "00.01");
+    updatePrices(defaultData, QDateTime::currentDateTimeUtc().date());
 }
 
-qreal HtmlFetcher::getPrice(const QDateTime &evenHour) const
+qreal HtmlFetcher::getPrice(const QDateTime &evenHourInUtc) const
 {
-    return m_prices.value(evenHour);
+    return m_prices.value(evenHourInUtc);
 }
 
 QString HtmlFetcher::currentPrice() const
 {
-    return tr("%1 c/kWh").arg(m_prices.value(m_clock->toEvenHour(m_clock->currentTime())), 0, 'f', 2);
+    return tr("%1 c/kWh").arg(m_prices.value(m_clock->toEvenHour(m_clock->currentTime().toUTC())), 0, 'f', 2);
 }
 
 void HtmlFetcher::fetchTomorrowData()
 {
     if (m_fetchingTomorrow) {
-        const QString tomorrow = QDateTime::currentDateTime().addDays(1).toString("dd.MM.yyyy");
+        const QString tomorrow = QDateTime::currentDateTimeUtc().addDays(1).toString("dd.MM.yyyy");
         fetchData(tomorrow);
     }
 }
@@ -70,9 +72,9 @@ void HtmlFetcher::networkReplyReceived(QNetworkReply *reply)
     HtmlTableExtractor extractor;
     auto result = extractor.extractTable(reply->readAll());
     if (m_fetchingTomorrow) {
-        updatePrices(result, QDateTime::currentDateTime().addDays(1).date());
+        updatePrices(result, QDateTime::currentDateTimeUtc().addDays(1).date());
     } else {
-        updatePrices(result, QDateTime::currentDateTime().date());
+        updatePrices(result, QDateTime::currentDateTimeUtc().date());
     }
     reply->deleteLater();
     if (!m_fetchingTomorrow) {
@@ -98,9 +100,11 @@ void HtmlFetcher::updatePrices(const QList<QPair<QString, QString> > &parsedData
                 /* Row value is euros / MWh, but we need cents / kWh.
                  * So we have to multiply by 100 and divide by 1000,
                  * that is divide by 10.
+                 * Price is without tax, so add "ALV".
+                 * Also apply seller margin.
                  */
                 QDateTime keyTime(date, rowTime);
-                m_prices.insert(keyTime, rowValue / 10.0);
+                m_prices.insert(keyTime, ((1.0 + s_alv) * rowValue / 10.0) + s_priceMargin);
             }
         }
     }

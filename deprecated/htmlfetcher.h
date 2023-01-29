@@ -7,7 +7,7 @@ class HtmlFetcher : public PriceFetcher
     Q_OBJECT
 public:
     explicit HtmlFetcher(Clock* clock);
-    qreal getPrice(const QDateTime& evenHour) const override;
+    qreal getPrice(const QDateTime& evenHourInUtc) const override;
     QString currentPrice() const override;
 private slots:
     void fetchTomorrowData();
