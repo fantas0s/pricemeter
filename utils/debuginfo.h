@@ -4,15 +4,16 @@
 class DebugInfo : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString debugString READ debugString WRITE setDebugString NOTIFY debugStringChanged)
+    Q_PROPERTY(QString debugString READ debugString NOTIFY debugStringChanged)
 public:
     static DebugInfo* instance();
+    static void destroyInstance();
     QString debugString() const;
-    void setDebugString(const QString &string);
+    void print(const QString &string);
 signals:
     void debugStringChanged();
 private:
     explicit DebugInfo();
     static DebugInfo* m_instance;
-    QString m_debugString;
+    QStringList m_debugStrings;
 };

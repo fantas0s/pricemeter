@@ -43,5 +43,8 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
     engine.load(url);
 
-    return app.exec();
+    int returnValue = app.exec();
+    debugInfo = nullptr;
+    DebugInfo::destroyInstance();
+    return returnValue;
 }

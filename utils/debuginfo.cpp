@@ -2,6 +2,8 @@
 
 DebugInfo* DebugInfo::m_instance = nullptr;
 
+static const int s_rowMax = 10;
+
 DebugInfo *DebugInfo::instance()
 {
     if (m_instance == nullptr)
@@ -9,18 +11,25 @@ DebugInfo *DebugInfo::instance()
     return m_instance;
 }
 
-QString DebugInfo::debugString() const
+void DebugInfo::destroyInstance()
 {
-    return m_debugString;
+    delete m_instance;
+    m_instance = nullptr;
 }
 
-void DebugInfo::setDebugString(const QString &string)
+QString DebugInfo::debugString() const
 {
-    if (m_debugString != string)
+    return m_debugStrings.join(QChar('\n'));
+}
+
+void DebugInfo::print(const QString &string)
+{
+    while (m_debugStrings.size() >= s_rowMax)
     {
-        m_debugString = string;
-        emit debugStringChanged();
+        m_debugStrings.removeFirst();
     }
+    m_debugStrings.append(string);
+    emit debugStringChanged();
 }
 
 DebugInfo::DebugInfo()
