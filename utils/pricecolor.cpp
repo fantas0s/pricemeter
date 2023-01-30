@@ -1,6 +1,6 @@
 #include "pricecolor.h"
 
-static const qreal s_cheapPriceInCents = 0.33; /* times 30 days = 10 cents */
+static const qreal s_cheapPriceInCents = 1.0; /* times 30 days = 30 cents */
 static const qreal s_expensivePriceInCents = 33.0; /* times 30 days = 10 EUR */
 
 PriceColor::PriceColor()
@@ -14,8 +14,13 @@ QColor PriceColor::color() const
     if (m_price > expensiveAreaLimit())
         return QColor(255, 0, 0); // Red, as in "expensive" area
 
-    const qreal absoluteMaxPrice = qMin(m_maxPrice, expensiveAreaLimit());
-    const qreal absoluteMinPrice = qMax(m_minPrice, cheapAreaLimit());
+#ifdef RELATIVE_PRICES
+    const qreal absoluteMaxPrice = m_maxPrice;
+    const qreal absoluteMinPrice = m_minPrice;
+#else
+    const qreal absoluteMaxPrice = expensiveAreaLimit();
+    const qreal absoluteMinPrice = cheapAreaLimit();
+#endif
     const qreal maxCost = absoluteMaxPrice - absoluteMinPrice;
     const qreal normalizedCost = m_price - absoluteMinPrice;
 
