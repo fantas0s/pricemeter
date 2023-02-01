@@ -17,7 +17,8 @@ static const qreal s_priceMargin = 0.22; /* cent / kWh */
 HtmlFetcher::HtmlFetcher(Clock* clock)
     : PriceFetcher{clock}
 {
-    connect(clock, &Clock::hourChanged, this, &HtmlFetcher::fetchTomorrowData);
+    /* As a safety precaution (e.g. no time on device boot) also fetch today when refreshing. */
+    connect(clock, &Clock::hourChanged, this, &HtmlFetcher::fetchTodayData);
     connect(clock, &Clock::hourChanged, this, &PriceFetcher::currentPriceChanged);
     m_accessManager = new QNetworkAccessManager(this);
     m_accessManager->setTransferTimeout();
@@ -54,17 +55,18 @@ HtmlFetcher::HtmlFetcher(Clock* clock)
 
 qreal HtmlFetcher::getPrice(const QDateTime &evenHourInUtc) const
 {
-    return m_prices.value(evenHourInUtc);
+    return m_prices.value(evenHourInUtc, 0.0);
 }
 
 QString HtmlFetcher::currentPrice() const
 {
-    return tr("%1 c/kWh").arg(m_prices.value(m_clock->toEvenHour(m_clock->currentTime().toUTC())), 0, 'f', 2);
+    return tr("%1 c/kWh").arg(m_prices.value(m_clock->toEvenHour(m_clock->currentTime().toUTC()), 0.0), 0, 'f', 2);
 }
 
 void HtmlFetcher::fetchTodayData()
 {
     disconnect(m_clock, &Clock::minuteChanged, this, &HtmlFetcher::fetchTodayData);
+    m_fetchingTomorrow = false;
     const QString today = QDateTime::currentDateTimeUtc().toString("dd.MM.yyyy");
     fetchData(today);
 }
