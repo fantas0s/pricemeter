@@ -16,7 +16,6 @@ OperationListItem::OperationListItem()
         m_costColors.append(QColor(255, 255, 255));
     }
     m_timeStrings[static_cast<int>(TextIndex::ThisHour)] = QObject::tr("Now:");
-    m_costColors[static_cast<int>(TextIndex::LowestCost)] = QColor(0, 255, 0); // Always green
 }
 
 bool OperationListItem::isValid() const
@@ -96,7 +95,7 @@ void OperationListItem::recalculateValues(const Clock *clock, const PriceFetcher
         m_costStrings[static_cast<int>(TextIndex::ThisHour)] = centsToEuroString(thisHourCost);
         m_costStrings[static_cast<int>(TextIndex::NextHour)] = centsToEuroString(nextHourCost);
         m_costStrings[static_cast<int>(TextIndex::TwoHours)] = centsToEuroString(twoHourCost);
-        calculateLowestCostStringsAndValues();
+        calculateLowestCostStringsAndValues(); /* Needed to do at this point for proper color selection. */
         m_costColors[static_cast<int>(TextIndex::ThisHour)] = textColorFromCost(thisHourCost);
         m_costColors[static_cast<int>(TextIndex::NextHour)] = textColorFromCost(nextHourCost);
         m_costColors[static_cast<int>(TextIndex::TwoHours)] = textColorFromCost(twoHourCost);
@@ -126,11 +125,28 @@ QString OperationListItem::continuousCostString(int hours) const
 
 void OperationListItem::calculateLowestCostStringsAndValues()
 {
+    /* We try to find the "next cost that is lower than current costs". */
+    QList<qreal> compareCosts;
+    const QDateTime currentTime = m_clock->currentTime();
+    compareCosts.append(consumptionCost(currentTime));
+    compareCosts.append(consumptionCost(m_clock->nextEvenHour()));
+    compareCosts.append(consumptionCost(m_clock->nextEvenHour().addSecs(3600)));
     /* Get next even hour */
     const QDateTime baseTime = m_clock->toEvenHour(m_clock->currentTime().addSecs(3600));
-    int lowestCostAdd = 0;
     m_lowestCostValue = 0;
     m_highestCostValue = 0;
+    qreal nextLowestCost = compareCosts[0];
+    int nextLowestCostAdd = -1;
+    const int nextLowestCostCompareStart = compareCosts.size() - 1;
+    for (int hourAddition = 0 ; hourAddition < nextLowestCostCompareStart ; ++hourAddition)
+    {
+         const qreal currentCost = compareCosts.at(hourAddition+1);
+         if (currentCost < nextLowestCost)
+         {
+             nextLowestCost = currentCost;
+             nextLowestCostAdd = hourAddition;
+         }
+    }
     /* Try next 23 hours. */
     for (int additionalHours = 0 ; additionalHours < 24 ; ++additionalHours)
     {
@@ -139,17 +155,31 @@ void OperationListItem::calculateLowestCostStringsAndValues()
             if ((m_lowestCostValue == 0) ||
                 (m_lowestCostValue > costOfHour)) {
                 m_lowestCostValue = costOfHour;
-                lowestCostAdd = additionalHours;
             }
             if ((m_highestCostValue == 0) ||
                 (m_highestCostValue < costOfHour)) {
                 m_highestCostValue = costOfHour;
             }
+            if (additionalHours >= nextLowestCostCompareStart &&
+                nextLowestCostAdd < nextLowestCostCompareStart)
+            {
+                /* Next lowest cost not found yet. */
+                if (costOfHour < nextLowestCost)
+                {
+                    nextLowestCost = costOfHour;
+                    nextLowestCostAdd = additionalHours;
+                }
+             }
         }
     }
-    m_timeStrings[static_cast<int>(TextIndex::LowestCost)] = baseTime.addSecs(3600 * lowestCostAdd).toString("hh:mm");
-    /* m_lowestCostValue is in cents. */
-    m_costStrings[static_cast<int>(TextIndex::LowestCost)] = centsToEuroString(m_lowestCostValue);
+    /* Add next lowest cost. */
+    if (nextLowestCostAdd < 0) {
+        m_timeStrings[static_cast<int>(TextIndex::LowestCost)] = currentTime.toString("hh:mm");
+    } else {
+        m_timeStrings[static_cast<int>(TextIndex::LowestCost)] = baseTime.addSecs(3600 * nextLowestCostAdd).toString("hh:mm");
+    }
+    m_costStrings[static_cast<int>(TextIndex::LowestCost)] = centsToEuroString(nextLowestCost);
+    m_costColors[static_cast<int>(TextIndex::LowestCost)] = textColorFromCost(nextLowestCost);
 }
 
 qreal OperationListItem::consumptionCost(const QDateTime &time) const
