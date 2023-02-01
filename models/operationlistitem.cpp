@@ -173,11 +173,12 @@ void OperationListItem::calculateLowestCostStringsAndValues()
         }
     }
     /* Add next lowest cost. */
-    if (nextLowestCostAdd < 0) {
-        m_timeStrings[static_cast<int>(TextIndex::LowestCost)] = currentTime.toString("hh:mm");
-    } else {
-        m_timeStrings[static_cast<int>(TextIndex::LowestCost)] = baseTime.addSecs(3600 * nextLowestCostAdd).toString("hh:mm");
+    if (nextLowestCostAdd < nextLowestCostCompareStart) {
+        /* No cheaper cost was found. Take "next cost in chain" */
+        nextLowestCostAdd = nextLowestCostCompareStart;
+        nextLowestCost = consumptionCost(baseTime.addSecs(3600 * nextLowestCostCompareStart));
     }
+    m_timeStrings[static_cast<int>(TextIndex::LowestCost)] = baseTime.addSecs(3600 * nextLowestCostAdd).toString("hh:mm");
     m_costStrings[static_cast<int>(TextIndex::LowestCost)] = centsToEuroString(nextLowestCost);
     m_costColors[static_cast<int>(TextIndex::LowestCost)] = textColorFromCost(nextLowestCost);
 }
