@@ -10,6 +10,7 @@ public:
     qreal getPrice(const QDateTime& evenHourInUtc) const override;
     QString currentPrice() const override;
 private slots:
+    void fetchTodayData();
     void fetchTomorrowData();
     void networkReplyReceived(QNetworkReply* reply);
 private:

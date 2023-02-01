@@ -20,10 +20,9 @@ HtmlFetcher::HtmlFetcher(Clock* clock)
     connect(clock, &Clock::hourChanged, this, &HtmlFetcher::fetchTomorrowData);
     connect(clock, &Clock::hourChanged, this, &PriceFetcher::currentPriceChanged);
     m_accessManager = new QNetworkAccessManager(this);
+    m_accessManager->setTransferTimeout();
     connect(m_accessManager, &QNetworkAccessManager::finished,
             this, &HtmlFetcher::networkReplyReceived);
-    const QString today = QDateTime::currentDateTimeUtc().toString("dd.MM.yyyy");
-    fetchData(today);
     QList<QPair<QString, QString>> defaultData;
     defaultData << QPair<QString, QString>("00:00", "00.01");
     defaultData << QPair<QString, QString>("01:00", "00.01");
@@ -50,6 +49,7 @@ HtmlFetcher::HtmlFetcher(Clock* clock)
     defaultData << QPair<QString, QString>("22:00", "00.01");
     defaultData << QPair<QString, QString>("23:00", "00.01");
     updatePrices(defaultData, QDateTime::currentDateTimeUtc().date());
+    fetchTodayData();
 }
 
 qreal HtmlFetcher::getPrice(const QDateTime &evenHourInUtc) const
@@ -62,8 +62,16 @@ QString HtmlFetcher::currentPrice() const
     return tr("%1 c/kWh").arg(m_prices.value(m_clock->toEvenHour(m_clock->currentTime().toUTC())), 0, 'f', 2);
 }
 
+void HtmlFetcher::fetchTodayData()
+{
+    disconnect(m_clock, &Clock::minuteChanged, this, &HtmlFetcher::fetchTodayData);
+    const QString today = QDateTime::currentDateTimeUtc().toString("dd.MM.yyyy");
+    fetchData(today);
+}
+
 void HtmlFetcher::fetchTomorrowData()
 {
+    disconnect(m_clock, &Clock::minuteChanged, this, &HtmlFetcher::fetchTomorrowData);
     if (m_fetchingTomorrow) {
         const QString tomorrow = QDateTime::currentDateTimeUtc().addDays(1).toString("dd.MM.yyyy");
         fetchData(tomorrow);
@@ -72,19 +80,28 @@ void HtmlFetcher::fetchTomorrowData()
 
 void HtmlFetcher::networkReplyReceived(QNetworkReply *reply)
 {
-    HtmlTableExtractor extractor;
-    auto result = extractor.extractTable(reply->readAll());
-    if (m_fetchingTomorrow) {
-        updatePrices(result, QDateTime::currentDateTimeUtc().addDays(1).date());
+    if (reply->error() != QNetworkReply::NetworkError::NoError) {
+        qWarning() << "Got Error:" << reply->error() << "retrying...";
+        if (m_fetchingTomorrow) {
+            connect(m_clock, &Clock::minuteChanged, this, &HtmlFetcher::fetchTomorrowData, Qt::UniqueConnection);
+        } else {
+            connect(m_clock, &Clock::minuteChanged, this, &HtmlFetcher::fetchTodayData, Qt::UniqueConnection);
+        }
     } else {
-        updatePrices(result, QDateTime::currentDateTimeUtc().date());
+        HtmlTableExtractor extractor;
+        auto result = extractor.extractTable(reply->readAll());
+        if (m_fetchingTomorrow) {
+            updatePrices(result, QDateTime::currentDateTimeUtc().addDays(1).date());
+        } else {
+            updatePrices(result, QDateTime::currentDateTimeUtc().date());
+        }
+        if (!m_fetchingTomorrow) {
+            m_fetchingTomorrow = true;
+            /* Try to fetch also tomorrow data. If no data available, we will anyway try every hour starting from next hour. */
+            fetchTomorrowData();
+        }
     }
     reply->deleteLater();
-    if (!m_fetchingTomorrow) {
-        m_fetchingTomorrow = true;
-        /* Try to fetch also tomorrow data. If no data available, we will anyway try every hour starting from next hour. */
-        fetchTomorrowData();
-    }
 }
 
 void HtmlFetcher::fetchData(QString fromDate)
