@@ -1,6 +1,10 @@
 #include "htmltableextractor.h"
 #include <QXmlStreamReader>
 
+#ifdef DEBUG_NETWORK_ACCESS
+#include <QDebug>
+#endif
+
 HtmlTableExtractor::HtmlTableExtractor()
 {}
 
@@ -28,6 +32,12 @@ QList<QPair<QString, QString>> HtmlTableExtractor::extractTable(const QString &h
             }
         }
     }
+#ifdef DEBUG_NETWORK_ACCESS
+    for (auto iter = m_result.constBegin() ; iter != m_result.constEnd() ; iter++)
+    {
+        qDebug() << "From HTML:" << iter->first << ":" << iter->second;
+    }
+#endif
     return m_result;
 }
 

@@ -1,6 +1,7 @@
 #include "htmlfetcher.h"
 #include "htmltableextractor.h"
 #include "datasources/clock.h"
+#include <QTimeZone>
 #ifdef DEBUG_NETWORK_ACCESS
 #include "utils/debuginfo.h"
 #endif
@@ -22,32 +23,6 @@ HtmlFetcher::HtmlFetcher(Clock* clock)
     m_accessManager->setTransferTimeout();
     connect(m_accessManager, &QNetworkAccessManager::finished,
             this, &HtmlFetcher::networkReplyReceived);
-    QList<QPair<QString, QString>> defaultData;
-    defaultData << QPair<QString, QString>("00:00", "00.01");
-    defaultData << QPair<QString, QString>("01:00", "00.01");
-    defaultData << QPair<QString, QString>("02:00", "00.01");
-    defaultData << QPair<QString, QString>("03:00", "00.01");
-    defaultData << QPair<QString, QString>("04:00", "00.01");
-    defaultData << QPair<QString, QString>("05:00", "00.01");
-    defaultData << QPair<QString, QString>("06:00", "00.01");
-    defaultData << QPair<QString, QString>("07:00", "00.01");
-    defaultData << QPair<QString, QString>("08:00", "00.01");
-    defaultData << QPair<QString, QString>("09:00", "00.01");
-    defaultData << QPair<QString, QString>("10:00", "00.01");
-    defaultData << QPair<QString, QString>("11:00", "00.01");
-    defaultData << QPair<QString, QString>("12:00", "00.01");
-    defaultData << QPair<QString, QString>("13:00", "00.01");
-    defaultData << QPair<QString, QString>("14:00", "00.01");
-    defaultData << QPair<QString, QString>("15:00", "00.01");
-    defaultData << QPair<QString, QString>("16:00", "00.01");
-    defaultData << QPair<QString, QString>("17:00", "00.01");
-    defaultData << QPair<QString, QString>("18:00", "00.01");
-    defaultData << QPair<QString, QString>("19:00", "00.01");
-    defaultData << QPair<QString, QString>("20:00", "00.01");
-    defaultData << QPair<QString, QString>("21:00", "00.01");
-    defaultData << QPair<QString, QString>("22:00", "00.01");
-    defaultData << QPair<QString, QString>("23:00", "00.01");
-    updatePrices(defaultData, QDateTime::currentDateTimeUtc().date());
     fetchTodayData();
 }
 
@@ -58,7 +33,7 @@ qreal HtmlFetcher::getPrice(const QDateTime &evenHourInUtc) const
 
 QString HtmlFetcher::currentPrice() const
 {
-    return tr("%1 c/kWh").arg(m_prices.value(m_clock->toEvenHour(m_clock->currentTime().toUTC()), 0.0), 0, 'f', 2);
+    return tr("%1 c/kWh").arg(m_prices.value(m_clock->utcToEvenHour(m_clock->currentTimeUTC()), 0.0), 0, 'f', 2);
 }
 
 void HtmlFetcher::fetchTodayData()
@@ -100,6 +75,14 @@ void HtmlFetcher::networkReplyReceived(QNetworkReply *reply)
             /* Try to fetch also tomorrow data. If no data available, we will anyway try every hour starting from next hour. */
             fetchTomorrowData();
         }
+#ifdef DEBUG_NETWORK_ACCESS
+        else {
+            for (auto iter = m_prices.constBegin() ; iter != m_prices.constEnd() ; iter++) {
+                qDebug() << iter.key().toString("dd.MM.yyyy hh:mm") << ":" << QString::number(iter.value());
+            }
+            qDebug() << "Time now (UTC):" << QDateTime::currentDateTimeUtc().toString("dd.MM.yyyy hh:mm");
+        }
+#endif
     }
     reply->deleteLater();
 }
@@ -123,6 +106,9 @@ void HtmlFetcher::updatePrices(const QList<QPair<QString, QString> > &parsedData
             bool readOk = false;
             qreal rowValue = pair.second.toFloat(&readOk);
             if (readOk) {
+#ifdef DEBUG_NETWORK_ACCESS
+                qDebug() << pair.first << pair.second << "read OK:" << rowValue;
+#endif
                 /* Row value is euros / MWh, but we need cents / kWh.
                  * So we have to multiply by 100 and divide by 1000,
                  * that is divide by 10.
@@ -130,6 +116,7 @@ void HtmlFetcher::updatePrices(const QList<QPair<QString, QString> > &parsedData
                  * Also apply seller margin.
                  */
                 QDateTime keyTime(date, rowTime);
+                keyTime.setTimeZone(QTimeZone(0));
                 m_prices.insert(keyTime, ((1.0 + s_alv) * rowValue / 10.0) + s_priceMargin);
             }
         }

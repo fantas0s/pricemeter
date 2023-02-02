@@ -1,5 +1,6 @@
 #include "clock.h"
 #include <QDateTime>
+#include <QTimeZone>
 #include <QLocale>
 
 Clock::Clock(QObject *parent)
@@ -9,9 +10,11 @@ Clock::Clock(QObject *parent)
     Clock::timerEvent(nullptr);
 }
 
-QDateTime Clock::toEvenHour(const QDateTime &time) const
+QDateTime Clock::utcToEvenHour(const QDateTime &time) const
 {
-    return QDateTime(time.date(), QTime(time.time().hour(),0,0));
+    QDateTime evenHourDateTime(time.date(), QTime(time.time().hour(),0,0));
+    evenHourDateTime.setTimeZone(QTimeZone(0));
+    return evenHourDateTime;
 }
 
 void Clock::timerEvent(QTimerEvent *event)

@@ -11,8 +11,9 @@ public:
     explicit Clock(QObject *parent = nullptr);
     QString currentTimeString() const {return m_currentTimeString;}
     QDateTime currentTime() const {return m_currentTime;}
-    QDateTime toEvenHour(const QDateTime& time) const;
-    QDateTime nextEvenHour() const {return m_nextEvenHour;}
+    QDateTime currentTimeUTC() const {return m_currentTime.toUTC();}
+    QDateTime utcToEvenHour(const QDateTime& time) const;
+    QDateTime nextEvenHourUTC() const {return m_nextEvenHour;}
 signals:
     void secondChanged();
     void minuteChanged();

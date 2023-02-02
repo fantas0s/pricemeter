@@ -75,8 +75,8 @@ void OperationListItem::recalculateValues(const Clock *clock, const PriceFetcher
 {
     m_clock = clock;
     m_priceFetcher = priceFetcher;
-    int minutes = 60 - m_clock->currentTime().time().minute();
-    const QTime twoHoursTime = m_clock->nextEvenHour().addSecs(3600).time();
+    int minutes = 60 - m_clock->currentTimeUTC().time().minute();
+    const QTime twoHoursTime = m_clock->nextEvenHourUTC().addSecs(3600).time();
     /* Titles */
     m_timeStrings[static_cast<int>(TextIndex::NextHour)] = QObject::tr("In %n minute(s):", "", minutes);
     m_timeStrings[static_cast<int>(TextIndex::TwoHours)] = QLocale::system().toString(twoHoursTime, "hh:mm")+QObject::tr(":");
@@ -89,9 +89,9 @@ void OperationListItem::recalculateValues(const Clock *clock, const PriceFetcher
         m_costStrings[static_cast<int>(TextIndex::LowestCost)] = continuousCostString(24);
         useContinuousColors();
     } else {
-        qreal thisHourCost = consumptionCost(m_clock->currentTime());
-        qreal nextHourCost = consumptionCost(m_clock->nextEvenHour());
-        qreal twoHourCost = consumptionCost(m_clock->nextEvenHour().addSecs(3600));
+        qreal thisHourCost = consumptionCost(m_clock->currentTimeUTC());
+        qreal nextHourCost = consumptionCost(m_clock->nextEvenHourUTC());
+        qreal twoHourCost = consumptionCost(m_clock->nextEvenHourUTC().addSecs(3600));
         m_costStrings[static_cast<int>(TextIndex::ThisHour)] = centsToEuroString(thisHourCost);
         m_costStrings[static_cast<int>(TextIndex::NextHour)] = centsToEuroString(nextHourCost);
         m_costStrings[static_cast<int>(TextIndex::TwoHours)] = centsToEuroString(twoHourCost);
@@ -111,7 +111,7 @@ qreal OperationListItem::continuousCost(int hours) const
 {
     /* Always only one consumption rate for continuous */
     const qreal kW = m_consumptions.first().kW();
-    QDateTime momentToEvaluate = m_clock->currentTime();
+    QDateTime momentToEvaluate = m_clock->currentTimeUTC();
     const int seconds = 60 * 60 * hours;
     /* Cost in cents */
     return cost(kW, seconds, momentToEvaluate);
@@ -127,12 +127,12 @@ void OperationListItem::calculateLowestCostStringsAndValues()
 {
     /* We try to find the "next cost that is lower than current costs". */
     QList<qreal> compareCosts;
-    const QDateTime currentTime = m_clock->currentTime();
-    compareCosts.append(consumptionCost(currentTime));
-    compareCosts.append(consumptionCost(m_clock->nextEvenHour()));
-    compareCosts.append(consumptionCost(m_clock->nextEvenHour().addSecs(3600)));
+    const QDateTime currentTimeUTC = m_clock->currentTimeUTC();
+    compareCosts.append(consumptionCost(currentTimeUTC));
+    compareCosts.append(consumptionCost(m_clock->nextEvenHourUTC()));
+    compareCosts.append(consumptionCost(m_clock->nextEvenHourUTC().addSecs(3600)));
     /* Get next even hour */
-    const QDateTime baseTime = m_clock->toEvenHour(m_clock->currentTime().addSecs(3600));
+    const QDateTime baseTime = m_clock->utcToEvenHour(m_clock->currentTimeUTC().addSecs(3600));
     m_lowestCostValue = 0;
     m_highestCostValue = 0;
     qreal nextLowestCost = compareCosts[0];
@@ -178,15 +178,15 @@ void OperationListItem::calculateLowestCostStringsAndValues()
         nextLowestCostAdd = nextLowestCostCompareStart;
         nextLowestCost = consumptionCost(baseTime.addSecs(3600 * nextLowestCostCompareStart));
     }
-    m_timeStrings[static_cast<int>(TextIndex::LowestCost)] = baseTime.addSecs(3600 * nextLowestCostAdd).toString("hh:mm");
+    m_timeStrings[static_cast<int>(TextIndex::LowestCost)] = baseTime.addSecs(3600 * nextLowestCostAdd).toLocalTime().toString("hh:mm");
     m_costStrings[static_cast<int>(TextIndex::LowestCost)] = centsToEuroString(nextLowestCost);
     m_costColors[static_cast<int>(TextIndex::LowestCost)] = textColorFromCost(nextLowestCost);
 }
 
-qreal OperationListItem::consumptionCost(const QDateTime &time) const
+qreal OperationListItem::consumptionCost(const QDateTime &utcTime) const
 {
     qreal combinedCost = 0;
-    QDateTime momentToEvaluate = time;
+    QDateTime momentToEvaluate = utcTime;
     for (const auto& consumption : m_consumptions) {
         qreal kW = consumption.kW();
         int secondsToConsume = consumption.time().msecsSinceStartOfDay() / 1000;
@@ -195,18 +195,18 @@ qreal OperationListItem::consumptionCost(const QDateTime &time) const
     return combinedCost;
 }
 
-qreal OperationListItem::cost(qreal kW, int seconds, QDateTime &timeOfStart) const
+qreal OperationListItem::cost(qreal kW, int seconds, QDateTime &timeOfStartUTC) const
 {
     qreal cost = 0;
-    qreal price = m_priceFetcher->getPrice(m_clock->toEvenHour(timeOfStart).toUTC());
+    qreal price = m_priceFetcher->getPrice(m_clock->utcToEvenHour(timeOfStartUTC));
     while (seconds > 0) {
         /* Consume minutes up to next full hour */
-        const QDateTime searchTime = m_clock->toEvenHour(timeOfStart);
+        const QDateTime searchTime = m_clock->utcToEvenHour(timeOfStartUTC);
         /* In case we haven't got price data yet, use the last we got. */
         const qreal tempPrice = m_priceFetcher->getPrice(searchTime.toUTC());
         if (tempPrice > 0)
             price = tempPrice;
-        const int remainingSeconds = 3600 - (60 * timeOfStart.time().minute()) - timeOfStart.time().second();
+        const int remainingSeconds = 3600 - (60 * timeOfStartUTC.time().minute()) - timeOfStartUTC.time().second();
         qreal kWh = 0;
         if (seconds > remainingSeconds) {
             /* We have more time than just the remaining part of this hour.
@@ -214,12 +214,12 @@ qreal OperationListItem::cost(qreal kW, int seconds, QDateTime &timeOfStart) con
              */
             kWh = (kW * ((qreal)remainingSeconds)/3600.0);
             seconds -= remainingSeconds;
-            timeOfStart = timeOfStart.addSecs(remainingSeconds);
+            timeOfStartUTC = timeOfStartUTC.addSecs(remainingSeconds);
         } else {
             /* All of the remaining seconds happen within this hour. */
             kWh = (kW * ((qreal)seconds)/3600.0);
             seconds = 0;
-            timeOfStart = timeOfStart.addSecs(seconds);
+            timeOfStartUTC = timeOfStartUTC.addSecs(seconds);
         }
         cost += price * kWh;
     }

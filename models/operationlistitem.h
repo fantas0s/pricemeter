@@ -31,8 +31,8 @@ private:
     qreal continuousCost(int hours) const;
     QString continuousCostString(int hours) const;
     void calculateLowestCostStringsAndValues();
-    qreal consumptionCost(const QDateTime& time) const;
-    qreal cost(qreal kW, int seconds, QDateTime& timeOfStart) const;
+    qreal consumptionCost(const QDateTime& utcTime) const;
+    qreal cost(qreal kW, int seconds, QDateTime& timeOfStartUTC) const;
     QString centsToEuroString(qreal costInCents) const;
     QColor textColorFromCost(qreal cost) const;
     void useContinuousColors();
