@@ -10,9 +10,7 @@
 
 /* Here should be an URL which contains a table with proper values.
  * Naturally such an abuse of public website is not recommended or encouraged, so the URL is omitted. */
-static const QLatin1String s_url("");
-static const qreal s_alv = 0.10; /* tax in percent */
-static const qreal s_priceMargin = 0.22; /* cent / kWh */
+const QLatin1String HtmlFetcher::s_url("");
 
 HtmlFetcher::HtmlFetcher(Clock* clock)
     : PriceFetcher{clock}

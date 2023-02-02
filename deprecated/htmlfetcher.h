@@ -19,4 +19,7 @@ private:
     QNetworkAccessManager* m_accessManager;
     QMap<QDateTime, qreal> m_prices;
     bool m_fetchingTomorrow = false;
+    static constexpr qreal s_alv = 0.10; /* tax in percent */
+    static constexpr qreal s_priceMargin = 0.22; /* cent / kWh */
+    static const QLatin1String s_url;
 };
